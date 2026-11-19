@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { mainNav, navCurrent } from "@/lib/nav";
+import { mainNav, navCurrent, navLabel } from "@/lib/nav";
+import { useLang, useT } from "@/lib/i18n/client";
 import { AccountMenu } from "./AccountMenu";
 import { Avatar } from "./Avatar";
 import { HelpButton } from "./help/HelpButton";
+import { LangToggle } from "./LangToggle";
 
 /**
  * Top bar for every page except lessons. Left: the platform name in plain type (no logo
@@ -16,19 +18,21 @@ import { HelpButton } from "./help/HelpButton";
  */
 export function TopBar({ brand, initials, name }: { brand: string; initials: string | null; name: string | null }) {
   const pathname = usePathname();
+  const t = useT();
+  const lang = useLang();
   return (
     <header className="ob-topbar gl-topbar" data-surface="dark">
       <Link className="ob-brand gl-topbar__brand" href="/home">
         {brand}
       </Link>
-      <nav className="gl-topbar__nav" aria-label="Main">
+      <nav className="gl-topbar__nav" aria-label={t["ui.topbar.mainNav"]}>
         <ul className="ob-nav">
           {mainNav.map((item) => {
             const current = navCurrent(item.section, item.href, pathname);
             return (
               <li key={item.href}>
                 <Link href={item.href} aria-current={current || undefined}>
-                  {item.label}
+                  {navLabel(item, lang)}
                 </Link>
               </li>
             );
@@ -38,7 +42,7 @@ export function TopBar({ brand, initials, name }: { brand: string; initials: str
       <div className="ob-utils gl-topbar__utils">
         <HelpButton />
         <Link className="ob-btn ob-btn--on-dark gl-topbar__wide" href="/settings" aria-current={pathname === "/settings" ? "page" : undefined}>
-          Settings
+          {t["ui.settings"]}
         </Link>
         <span className="gl-topbar__wide">
           <Avatar initials={initials} name={name} />
@@ -46,6 +50,7 @@ export function TopBar({ brand, initials, name }: { brand: string; initials: str
         <span className="gl-topbar__menu">
           <AccountMenu initials={initials} name={name} />
         </span>
+        <LangToggle />
       </div>
     </header>
   );

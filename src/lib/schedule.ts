@@ -83,15 +83,21 @@ export function lessonStatus(access: DayAccess, progress: "not_started" | "in_pr
 }
 
 /** "Opens on 20 November", with the year only when it differs from today's. */
-export function formatOpenDate(openDate: string, today: string): string {
+export function formatOpenDate(openDate: string, today: string, lang: "en" | "vi" = "en"): string {
   const t = new Date(`${openDate}T00:00:00Z`);
   const sameYear = openDate.slice(0, 4) === today.slice(0, 4);
-  const text = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", day: "numeric", month: "long", ...(sameYear ? {} : { year: "numeric" }) }).format(t);
-  return `Opens on ${text}`;
+  const text = new Intl.DateTimeFormat(lang === "vi" ? "vi-VN" : "en-GB", { timeZone: "UTC", day: "numeric", month: "long", ...(sameYear ? {} : { year: "numeric" }) }).format(t);
+  return lang === "vi" ? `Mở vào ${text}` : `Opens on ${text}`;
 }
 
 /** "about 90 minutes" for lessons; day totals read in hours, such as "about 6 hours". */
-export function formatMinutes(minutes: number, unit: "minutes" | "hours" = "minutes"): string {
+export function formatMinutes(minutes: number, unit: "minutes" | "hours" = "minutes", lang: "en" | "vi" = "en"): string {
+  if (lang === "vi") {
+    if (unit === "minutes" || minutes < 60) return `khoảng ${minutes} phút`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m ? `khoảng ${h} giờ ${m} phút` : `khoảng ${h} giờ`;
+  }
   if (unit === "minutes" || minutes < 60) return `about ${minutes} minutes`;
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;

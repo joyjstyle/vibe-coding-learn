@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { TaskPart } from "@/lib/content/model";
 import { Blocks } from "../content/Blocks";
 import { Inlines } from "../content/Inlines";
+import { useT } from "@/lib/i18n/client";
 import type { SaveMessage } from "./useTicks";
 
 /**
@@ -29,16 +30,17 @@ export function TaskPanel({
   headingLevel?: 1 | 2;
   headingId: string;
 }) {
+  const t = useT();
   const H = headingLevel === 1 ? "h1" : "h2";
   const done = task.steps.filter((s) => ticked.has(s.id)).length;
   return (
     <section className="gl-task" aria-labelledby={headingId}>
       <div className="gl-task__head">
         <H id={headingId} className={`ob-h ${headingLevel === 1 ? "t-page-heading" : "t-section-heading"}`}>
-          Your task
+          {t["ui.task.yourTask"]}
         </H>
         <p className="ob-p t-label-meta gl-task__count">
-          {done} of {task.steps.length} steps done
+          {t["ui.task.stepsDone"](done, task.steps.length)}
         </p>
       </div>
       {task.heading ? (
@@ -52,7 +54,7 @@ export function TaskPanel({
         <Blocks blocks={task.before} />
       </div>
       {!canSave ? (
-        <p className="ob-p ob-alert ob-alert--info gl-task__note">Your ticks can&apos;t be saved because you&apos;re not signed in.</p>
+        <p className="ob-p ob-alert ob-alert--info gl-task__note">{t["ui.task.notSignedIn"]}</p>
       ) : null}
       <ol className="gl-steps">
         {task.steps.map((step, i) => {
@@ -64,7 +66,7 @@ export function TaskPanel({
               <div className="ob-check">
                 <input type="checkbox" id={id} checked={ticked.has(step.id)} disabled={!canSave} onChange={(e) => onToggle(step.id, e.target.checked)} />
                 <label htmlFor={id}>
-                  <span className="gl-step__num">{i + 1}.</span> {label ? <Inlines nodes={label} /> : `Step ${i + 1}`}
+                  <span className="gl-step__num">{i + 1}.</span> {label ? <Inlines nodes={label} /> : t["ui.task.step"](i + 1)}
                 </label>
               </div>
               {(label ? rest : step.children).length ? (
@@ -84,7 +86,7 @@ export function TaskPanel({
       ) : null}
       <div className="ob-card__actions">
         <Link className="ob-btn ob-btn--secondary" href={`/lesson/${slug}/submit`}>
-          Submit evidence
+          {t["ui.task.submitEvidence"]}
         </Link>
       </div>
     </section>

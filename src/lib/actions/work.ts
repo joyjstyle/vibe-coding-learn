@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { reviewPointFor } from "@/lib/config";
 import { lessonIdToSlug } from "@/lib/content/curriculum";
 import { COMMIT, isHttpUrl } from "@/lib/evidence-rules";
+import { cleanFileName, checkFile } from "@/lib/evidence-rules";
+import { getLang, getT, type Messages } from "@/lib/i18n/server";
 import { getLessonAccess } from "@/lib/lesson-access";
 import { auth } from "@/lib/platform/auth";
 import { FileRefusedError, type FileRef } from "@/lib/platform/files";
@@ -15,16 +17,13 @@ import { fileStorage, workStore } from "@/lib/platform/stores";
 type Fail = { ok: false; error: string };
 const fail = (error: string): Fail => ({ ok: false, error });
 
-const NOT_SIGNED_IN = "Your work can't be saved because you're not signed in.";
-const SAVE_FAILED = "We couldn't save your changes. Check your connection, then try again.";
-
 /** The signed-in intern and an open lesson, or the reason the action cannot go ahead. */
-async function guard(lessonId: string) {
-  if (!/^\d+\.\d+$/.test(lessonId)) return fail("This lesson does not exist.");
+async function guard(lessonId: string, t: Messages) {
+  if (!/^\d+\.\d+$/.test(lessonId)) return fail(t["lib.error.lessonMissing"]);
   const intern = await auth.getCurrentIntern();
-  if (!intern) return fail(NOT_SIGNED_IN);
+  if (!intern) return fail(t["lib.work.notSignedIn"]);
   const access = await getLessonAccess(lessonId);
-  if (access.kind !== "open") return fail("This lesson isn't open yet, so work can't be saved for it.");
+  if (access.kind !== "open") return fail(t["lib.work.lessonNotOpen"]);
   return { ok: true as const, intern, lesson: access.lesson };
 }
 
@@ -38,16 +37,20 @@ function refresh(lessonId: string) {
 // ---------- Files ----------
 
 export async function uploadEvidenceFile(lessonId: string, form: FormData): Promise<{ ok: true; file: FileRef } | Fail> {
-  const g = await guard(lessonId);
+  const t = await getT();
+  const g = await guard(lessonId, t);
   if (!g.ok) return g;
   const file = form.get("file");
-  if (!(file instanceof File)) return fail("Choose a file to upload.");
+  if (!(file instanceof File)) return fail(t["lib.work.chooseFile"]);
+  // Checked here first so the reason is in the learner's language; the store checks again.
+  const pre = checkFile(cleanFileName(file.name), file.size, await getLang());
+  if (!pre.ok) return fail(pre.reason);
   try {
     const ref = await fileStorage.save(g.intern.id, file.name, new Uint8Array(await file.arrayBuffer()));
     return { ok: true, file: ref };
   } catch (e) {
     if (e instanceof FileRefusedError) return fail(e.message);
-    return fail(`We couldn't upload ${file.name}. Try again, or remove it.`);
+    return fail(t["lib.work.uploadFailed"](file.name));
   }
 }
 
@@ -71,10 +74,11 @@ async function resolveFile(internId: string, id: string | undefined): Promise<Fi
 }
 
 export async function saveDraft(lessonId: string, input: EvidenceInput): Promise<{ ok: true; savedAt: string } | Fail> {
-  const g = await guard(lessonId);
+  const t = await getT();
+  const g = await guard(lessonId, t);
   if (!g.ok) return g;
   const parsed = EvidenceInputSchema.safeParse(input);
-  if (!parsed.success) return fail("Some of your entries could not be read. Reload the page, then try again.");
+  if (!parsed.success) return fail(t["lib.work.unreadable"]);
   const known = new Set(g.lesson.submission.items.map((i) => i.id));
   const items: DraftItem[] = [];
   for (const it of parsed.data.items) {
@@ -88,7 +92,7 @@ export async function saveDraft(lessonId: string, input: EvidenceInput): Promise
       result: null,
     }));
   } catch {
-    return fail(SAVE_FAILED);
+    return fail(t["lib.error.saveFailed"]);
   }
   return { ok: true, savedAt };
 }
@@ -96,10 +100,11 @@ export async function saveDraft(lessonId: string, input: EvidenceInput): Promise
 export type SubmitProblem = { itemId: string | "gitCommit"; message: string };
 
 export async function submitEvidence(lessonId: string, input: EvidenceInput): Promise<{ ok: true; version: number } | (Fail & { problems?: SubmitProblem[] })> {
-  const g = await guard(lessonId);
+  const t = await getT();
+  const g = await guard(lessonId, t);
   if (!g.ok) return g;
   const parsed = EvidenceInputSchema.safeParse(input);
-  if (!parsed.success) return fail("Some of your entries could not be read. Reload the page, then try again.");
+  if (!parsed.success) return fail(t["lib.work.unreadable"]);
 
   const problems: SubmitProblem[] = [];
   const items: EvidenceItem[] = [];
@@ -107,22 +112,22 @@ export async function submitEvidence(lessonId: string, input: EvidenceInput): Pr
     const it = parsed.data.items.find((x) => x.itemId === expected.id);
     const n = index + 1;
     if (!it) {
-      problems.push({ itemId: expected.id, message: `Item ${n} is empty. Add text, a link or a file.` });
+      problems.push({ itemId: expected.id, message: t["lib.work.itemEmpty"](n) });
     } else if (it.kind === "text") {
-      if (!it.text?.trim()) problems.push({ itemId: it.itemId, message: `Item ${n} is empty. Add text, a link or a file.` });
+      if (!it.text?.trim()) problems.push({ itemId: it.itemId, message: t["lib.work.itemEmpty"](n) });
       else items.push({ itemId: it.itemId, kind: "text", text: it.text.trim() });
     } else if (it.kind === "link") {
-      if (!it.url?.trim() || !isHttpUrl(it.url.trim())) problems.push({ itemId: it.itemId, message: `Item ${n} needs a full link starting with https://.` });
+      if (!it.url?.trim() || !isHttpUrl(it.url.trim())) problems.push({ itemId: it.itemId, message: t["lib.work.itemNeedsLink"](n) });
       else items.push({ itemId: it.itemId, kind: "link", url: it.url.trim() });
     } else {
       const file = await resolveFile(g.intern.id, it.fileId);
-      if (!file) problems.push({ itemId: it.itemId, message: `Item ${n} has no uploaded file. Choose a file, or use text or a link.` });
+      if (!file) problems.push({ itemId: it.itemId, message: t["lib.work.itemNoFile"](n) });
       else items.push({ itemId: it.itemId, kind: "file", file });
     }
   }
   const commit = parsed.data.gitCommit.trim();
-  if (commit && !COMMIT.test(commit)) problems.push({ itemId: "gitCommit", message: "The Git commit should be 7 to 40 letters and numbers, as shown by git log." });
-  if (problems.length) return { ok: false, error: "Some items need attention before you can submit.", problems };
+  if (commit && !COMMIT.test(commit)) problems.push({ itemId: "gitCommit", message: t["lib.work.commitFormat"] });
+  if (problems.length) return { ok: false, error: t["lib.work.needsAttention"], problems };
 
   try {
     const version = await workStore.update(g.intern.id, (w) => {
@@ -139,7 +144,7 @@ export async function submitEvidence(lessonId: string, input: EvidenceInput): Pr
     refresh(lessonId);
     return { ok: true, version };
   } catch {
-    return fail(SAVE_FAILED);
+    return fail(t["lib.error.saveFailed"]);
   }
 }
 
@@ -152,13 +157,14 @@ const ReviewInputSchema = z.object({
 });
 
 export async function recordReviewOutcome(lessonId: string, input: z.input<typeof ReviewInputSchema>): Promise<{ ok: true } | (Fail & { field?: "reviewerName" | "decision" | "notes" })> {
-  const g = await guard(lessonId);
+  const t = await getT();
+  const g = await guard(lessonId, t);
   if (!g.ok) return g;
-  if (!reviewPointFor(lessonId)) return fail("This lesson is not a review point, so there is no decision to record.");
+  if (!reviewPointFor(lessonId)) return fail(t["lib.work.notReviewPoint"]);
   const parsed = ReviewInputSchema.safeParse(input);
   if (!parsed.success) {
     const issue = parsed.error.issues[0]!;
-    return { ...fail(issue.path[0] === "reviewerName" ? "Add the reviewer's name." : "Check the decision and notes, then try again."), field: issue.path[0] as "reviewerName" | "decision" | "notes" };
+    return { ...fail(issue.path[0] === "reviewerName" ? t["lib.work.reviewerName"] : t["lib.work.checkDecision"]), field: issue.path[0] as "reviewerName" | "decision" | "notes" };
   }
   try {
     const recorded = await workStore.update(g.intern.id, (w) => {
@@ -169,18 +175,19 @@ export async function recordReviewOutcome(lessonId: string, input: z.input<typeo
         result: true,
       };
     });
-    if (!recorded) return fail("Submit your evidence before recording a review outcome.");
+    if (!recorded) return fail(t["lib.work.submitBeforeReview"]);
     refresh(lessonId);
     return { ok: true };
   } catch {
-    return fail(SAVE_FAILED);
+    return fail(t["lib.error.saveFailed"]);
   }
 }
 
 // ---------- Share links ----------
 
 export async function createShareLink(lessonId: string): Promise<{ ok: true; token: string } | Fail> {
-  const g = await guard(lessonId);
+  const t = await getT();
+  const g = await guard(lessonId, t);
   if (!g.ok) return g;
   try {
     const token = await workStore.update(g.intern.id, (w) => {
@@ -190,16 +197,17 @@ export async function createShareLink(lessonId: string): Promise<{ ok: true; tok
       const t = newShareToken();
       return { next: { ...w, shares: [...w.shares, { token: t, lessonId, createdAt: new Date().toISOString(), revokedAt: null }] }, result: t };
     });
-    if (!token) return fail("Submit your evidence before sharing it.");
+    if (!token) return fail(t["lib.work.submitBeforeShare"]);
     refresh(lessonId);
     return { ok: true, token };
   } catch {
-    return fail(SAVE_FAILED);
+    return fail(t["lib.error.saveFailed"]);
   }
 }
 
 export async function revokeShareLink(lessonId: string): Promise<{ ok: true } | Fail> {
-  const g = await guard(lessonId);
+  const t = await getT();
+  const g = await guard(lessonId, t);
   if (!g.ok) return g;
   try {
     const at = new Date().toISOString();
@@ -207,7 +215,7 @@ export async function revokeShareLink(lessonId: string): Promise<{ ok: true } | 
     refresh(lessonId);
     return { ok: true };
   } catch {
-    return fail(SAVE_FAILED);
+    return fail(t["lib.error.saveFailed"]);
   }
 }
 

@@ -1,7 +1,12 @@
+"use client";
+
+import { useT } from "@/lib/i18n/client";
+
 export function SkipLink() {
+  const t = useT();
   return (
     <a className="gl-skip" href="#main">
-      Skip to main content
+      {t["ui.skipLink"]}
     </a>
   );
 }

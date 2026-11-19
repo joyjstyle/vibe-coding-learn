@@ -1,21 +1,29 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
-import { platform } from "@/lib/content/curriculum";
-import { auth } from "@/lib/platform/auth";
+import { contentFor } from "@/lib/content/curriculum";
+import { getLang, getT } from "@/lib/i18n/server";
+import { auth, isLoginEnabled } from "@/lib/platform/auth";
 import { isDatabaseMode } from "@/lib/platform/db";
 import { safeNext } from "@/lib/safe-next";
 import { AppFrame } from "@/components/AppFrame";
 import { PageHeader } from "@/components/PageHeader";
 import { SignInForm } from "./SignInForm";
 
-export const metadata = { title: "Sign in", robots: { index: false, follow: false } };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t["pages.signIn.metaTitle"], robots: { index: false, follow: false } };
+}
 
 /** The simplified branded shell with no navigation, as the design system asks before sign-in. */
 export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   await connection();
   const next = safeNext((await searchParams).next);
+  if (isDatabaseMode() && !isLoginEnabled()) redirect(next);
   if (await auth.getCurrentIntern()) redirect(next);
+  const lang = await getLang();
+  const t = await getT();
+  const { platform } = contentFor(lang);
   return (
     <AppFrame
       bar={
@@ -25,18 +33,18 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
       }
     >
       <div className="gl-narrow">
-        <PageHeader eyebrow={platform.description} title="Sign in to Genie Lab" />
+        <PageHeader eyebrow={platform.description} title={t["pages.signIn.title"]} />
         {isDatabaseMode() ? (
-          <section className="ob-card ob-card--outlined gl-signin-card" aria-label="Sign in">
+          <section className="ob-card ob-card--outlined gl-signin-card" aria-label={t["pages.signIn.sectionLabel"]}>
             <SignInForm next={next} />
-            <p className="ob-p ob-secondary">Your supervisor sets up your account. If you&apos;ve forgotten your password, ask them to reset it.</p>
+            <p className="ob-p ob-secondary">{t["pages.signIn.forgotten"]}</p>
           </section>
         ) : (
-          <section className="ob-card ob-card--outlined" aria-label="Sign-in not set up">
-            <p className="ob-p">Sign-in is not set up here. Local development signs you in automatically.</p>
+          <section className="ob-card ob-card--outlined" aria-label={t["pages.signIn.notSetUpLabel"]}>
+            <p className="ob-p">{t["pages.signIn.notSetUp"]}</p>
             <p className="ob-p">
               <Link className="ob-btn ob-btn--primary" href="/home">
-                Go to Home
+                {t["pages.goHome"]}
               </Link>
             </p>
           </section>

@@ -1,0 +1,372 @@
+{
+  "platform_name": "Genie Lab",
+  "platform_description": "Nền tảng thực tập Vibe Coding của Clinic Genie",
+  "language": "vi",
+  "note": "Vietnamese translation of content/curriculum.json. Same ids, order, minutes and file names; only titles differ. A lesson file missing here falls back to the English one.",
+  "units": [
+    {
+      "unit": 1,
+      "day": 1,
+      "title": "Giới thiệu và cài đặt công cụ",
+      "lessons": [
+        {
+          "id": "1.1",
+          "order": 1,
+          "title": "Cách website hoạt động và quy trình vibe coding",
+          "file": "lessons/lesson-1.1.md",
+          "estimated_minutes": 60
+        },
+        {
+          "id": "1.2",
+          "order": 2,
+          "title": "Cài đặt Claude Code CLI và Terminal",
+          "file": "lessons/lesson-1.2.md",
+          "estimated_minutes": 105
+        },
+        {
+          "id": "1.3",
+          "order": 3,
+          "title": "Hiểu các tệp dự án, TypeScript và TSX",
+          "file": "lessons/lesson-1.3.md",
+          "estimated_minutes": 90,
+          "approval": "Awaiting approval (revised 15 November 2026)"
+        },
+        {
+          "id": "1.4",
+          "order": 4,
+          "title": "Chạy website mẫu và lưu một mốc Git",
+          "file": "lessons/lesson-1.4.md",
+          "estimated_minutes": 105,
+          "approval": "Awaiting approval (revised 15 November 2026)"
+        }
+      ],
+      "estimated_minutes": 360
+    },
+    {
+      "unit": 2,
+      "day": 2,
+      "title": "Bản mô tả dự án, nghiên cứu và cấu trúc website",
+      "lessons": [
+        {
+          "id": "2.1",
+          "order": 1,
+          "title": "Hiểu doanh nghiệp, đối tượng khách hàng và ngành",
+          "file": "lessons/lesson-2.1.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "2.2",
+          "order": 2,
+          "title": "Nghiên cứu tài liệu tham khảo và nguồn liên quan một cách hiệu quả",
+          "file": "lessons/lesson-2.2.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "2.3",
+          "order": 3,
+          "title": "Lập sơ đồ trang, hành trình người dùng và các phần của trang",
+          "file": "lessons/lesson-2.3.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "2.4",
+          "order": 4,
+          "title": "Nộp bản mô tả và cấu trúc website để duyệt",
+          "file": "lessons/lesson-2.4.md",
+          "estimated_minutes": 90
+        }
+      ],
+      "estimated_minutes": 360
+    },
+    {
+      "unit": 3,
+      "day": 3,
+      "title": "Thiết kế và hướng dẫn Markdown",
+      "lessons": [
+        {
+          "id": "3.1",
+          "order": 1,
+          "title": "Làm theo thiết kế, hướng dẫn phong cách và nội dung đã duyệt",
+          "file": "lessons/lesson-3.1.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "3.2",
+          "order": 2,
+          "title": "Hiểu các tệp Markdown của dự án và thứ bậc hướng dẫn",
+          "file": "lessons/lesson-3.2.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "3.3",
+          "order": 3,
+          "title": "Chuẩn bị PRD, kiến trúc, quy tắc và kế hoạch công việc",
+          "file": "lessons/lesson-3.3.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "3.4",
+          "order": 4,
+          "title": "Rà soát hướng dẫn trước khi xây dựng",
+          "file": "lessons/lesson-3.4.md",
+          "estimated_minutes": 90
+        }
+      ],
+      "estimated_minutes": 360
+    },
+    {
+      "unit": 4,
+      "day": 4,
+      "title": "Điều khiển Claude Code và xây dựng nền tảng",
+      "lessons": [
+        {
+          "id": "4.1",
+          "order": 1,
+          "title": "Kiểm tra dự án và viết prompt có phạm vi rõ ràng",
+          "file": "lessons/lesson-4.1.md",
+          "estimated_minutes": 75
+        },
+        {
+          "id": "4.2",
+          "order": 2,
+          "title": "Lập kế hoạch các tác vụ nhỏ với tiêu chí chấp nhận rõ ràng",
+          "file": "lessons/lesson-4.2.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "4.3",
+          "order": 3,
+          "title": "Xây dựng style dùng chung, điều hướng và component tái sử dụng",
+          "file": "lessons/lesson-4.3.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "4.4",
+          "order": 4,
+          "title": "Đối chiếu bản dựng với thiết kế đã duyệt",
+          "file": "lessons/lesson-4.4.md",
+          "estimated_minutes": 105
+        }
+      ],
+      "estimated_minutes": 360
+    },
+    {
+      "unit": 5,
+      "day": 5,
+      "title": "Trang chủ và thiết kế đáp ứng",
+      "lessons": [
+        {
+          "id": "5.1",
+          "order": 1,
+          "title": "Xây dựng trang chủ theo từng phần",
+          "file": "lessons/lesson-5.1.md",
+          "estimated_minutes": 75
+        },
+        {
+          "id": "5.2",
+          "order": 2,
+          "title": "Thêm và kiểm tra nội dung chữ, hình ảnh và lời kêu gọi hành động",
+          "file": "lessons/lesson-5.2.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "5.3",
+          "order": 3,
+          "title": "Tinh chỉnh trang chủ trên các kích thước màn hình",
+          "file": "lessons/lesson-5.3.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "5.4",
+          "order": 4,
+          "title": "Rà soát và nộp trang chủ",
+          "file": "lessons/lesson-5.4.md",
+          "estimated_minutes": 105
+        }
+      ],
+      "estimated_minutes": 360
+    },
+    {
+      "unit": 6,
+      "day": 6,
+      "title": "Các trang phụ và chức năng",
+      "lessons": [
+        {
+          "id": "6.1",
+          "order": 1,
+          "title": "Lập kế hoạch và xây dựng các trang nội bộ",
+          "file": "lessons/lesson-6.1.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "6.2",
+          "order": 2,
+          "title": "Xây dựng các trang liên quan mà không lặp lại công việc",
+          "file": "lessons/lesson-6.2.md",
+          "estimated_minutes": 75
+        },
+        {
+          "id": "6.3",
+          "order": 3,
+          "title": "Kết nối các trang và kiểm tra hành trình của khách truy cập",
+          "file": "lessons/lesson-6.3.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "6.4",
+          "order": 4,
+          "title": "Rà soát và nộp các trang nội bộ",
+          "file": "lessons/lesson-6.4.md",
+          "estimated_minutes": 105
+        }
+      ],
+      "estimated_minutes": 360
+    },
+    {
+      "unit": 7,
+      "day": 7,
+      "title": "Biểu mẫu và tính năng tương tác",
+      "lessons": [
+        {
+          "id": "7.1",
+          "order": 1,
+          "title": "Xác định biểu mẫu và tính năng tương tác",
+          "file": "lessons/lesson-7.1.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "7.2",
+          "order": 2,
+          "title": "Triển khai và kiểm thử hành vi tương tác",
+          "file": "lessons/lesson-7.2.md",
+          "estimated_minutes": 75
+        },
+        {
+          "id": "7.3",
+          "order": 3,
+          "title": "Gỡ lỗi tính năng tương tác và xử lý sự cố",
+          "file": "lessons/lesson-7.3.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "7.4",
+          "order": 4,
+          "title": "Rà soát và nộp các tính năng tương tác",
+          "file": "lessons/lesson-7.4.md",
+          "estimated_minutes": 105
+        }
+      ],
+      "locked_title": "Content, SEO and Accessibility",
+      "estimated_minutes": 360
+    },
+    {
+      "unit": 8,
+      "day": 8,
+      "title": "Kiểm thử và gỡ lỗi",
+      "lessons": [
+        {
+          "id": "8.1",
+          "order": 1,
+          "title": "Lập kế hoạch và thực hiện rà soát QA website",
+          "file": "lessons/lesson-8.1.md",
+          "estimated_minutes": 75
+        },
+        {
+          "id": "8.2",
+          "order": 2,
+          "title": "Sửa các lỗi QA và chạy kiểm tra hồi quy",
+          "file": "lessons/lesson-8.2.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "8.3",
+          "order": 3,
+          "title": "Thực hiện rà soát khả năng tiếp cận có trọng tâm",
+          "file": "lessons/lesson-8.3.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "8.4",
+          "order": 4,
+          "title": "Tự động hóa các kiểm tra chính bằng Playwright",
+          "file": "lessons/lesson-8.4.md",
+          "estimated_minutes": 105
+        }
+      ],
+      "estimated_minutes": 360
+    },
+    {
+      "unit": 9,
+      "day": 9,
+      "title": "Bảo mật, hiệu năng và môi trường staging",
+      "lessons": [
+        {
+          "id": "9.1",
+          "order": 1,
+          "title": "Xử lý an toàn thông tin xác thực, dữ liệu cá nhân và các gói phụ thuộc",
+          "file": "lessons/lesson-9.1.md",
+          "estimated_minutes": 75
+        },
+        {
+          "id": "9.2",
+          "order": 2,
+          "title": "Cải thiện hình ảnh, tốc độ tải và chất lượng bản dựng",
+          "file": "lessons/lesson-9.2.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "9.3",
+          "order": 3,
+          "title": "Kiểm tra metadata, tiêu đề trang và mức sẵn sàng cho tìm kiếm",
+          "file": "lessons/lesson-9.3.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "9.4",
+          "order": 4,
+          "title": "Rà soát thay đổi Git, triển khai lên staging và xác minh kết quả",
+          "file": "lessons/lesson-9.4.md",
+          "estimated_minutes": 105,
+          "approval": "Awaiting approval (revised 15 November 2026)"
+        }
+      ],
+      "estimated_minutes": 360
+    },
+    {
+      "unit": 10,
+      "day": 10,
+      "title": "Đánh giá độc lập và bàn giao",
+      "lessons": [
+        {
+          "id": "10.1",
+          "order": 1,
+          "title": "Hiểu bản yêu cầu thay đổi và cập nhật hướng dẫn dự án",
+          "file": "lessons/lesson-10.1.md",
+          "estimated_minutes": 75
+        },
+        {
+          "id": "10.2",
+          "order": 2,
+          "title": "Tự lập kế hoạch và triển khai thay đổi",
+          "file": "lessons/lesson-10.2.md",
+          "estimated_minutes": 105
+        },
+        {
+          "id": "10.3",
+          "order": 3,
+          "title": "Kiểm thử thay đổi và nộp bằng chứng",
+          "file": "lessons/lesson-10.3.md",
+          "estimated_minutes": 90
+        },
+        {
+          "id": "10.4",
+          "order": 4,
+          "title": "Trình bày website, các vấn đề đã biết và bàn giao",
+          "file": "lessons/lesson-10.4.md",
+          "estimated_minutes": 90
+        }
+      ],
+      "estimated_minutes": 360
+    }
+  ]
+}

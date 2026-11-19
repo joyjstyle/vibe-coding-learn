@@ -12,6 +12,7 @@ import { Inlines } from "@/components/content/Inlines";
 import { SaveStatus, TaskPanel } from "@/components/lesson/TaskPanel";
 import { useTicks } from "@/components/lesson/useTicks";
 import { ProgressBadge } from "@/components/StatusBadges";
+import { useT } from "@/lib/i18n/client";
 
 type Props = {
   lessonId: string;
@@ -29,11 +30,12 @@ type Props = {
 };
 
 function Condition({ ok, label, detail, href, linkText }: { ok: boolean; label: string; detail: string; href?: string; linkText?: string }) {
+  const t = useT();
   return (
     <li className={`gl-condition${ok ? " gl-condition--ok" : ""}`}>
       {ok ? <Check size={20} aria-hidden="true" focusable="false" /> : <Circle size={20} aria-hidden="true" focusable="false" />}
       <span>
-        <strong>{label}:</strong> {ok ? "Done" : "Not yet"}. <span className="ob-secondary">{detail}</span>
+        <strong>{t["ui.task.labelColon"](label)}</strong> {ok ? t["ui.task.done"] : t["ui.task.notYet"]}. <span className="ob-secondary">{detail}</span>
         {!ok && href && linkText ? (
           <>
             {" "}
@@ -50,6 +52,7 @@ function Condition({ ok, label, detail, href, linkText }: { ok: boolean; label: 
 export function TaskPageClient(props: Props) {
   const { lessonId, slug, task, criteria, canSave, submitted, check } = props;
   const router = useRouter();
+  const t = useT();
   const steps = useTicks(props.tickedSteps, useCallback((id: string, checked: boolean) => saveStep(lessonId, id, checked), [lessonId]));
   const one = criteria.mode === "one";
   const crit = useTicks(
@@ -71,12 +74,12 @@ export function TaskPageClient(props: Props) {
     check: check !== "pending",
   };
   const ready = Object.values(conditions).every(Boolean);
-  const missing = [!conditions.steps && "tick every task step", !conditions.evidence && "submit your evidence", !conditions.criteria && (one ? "choose which statement applies" : "tick every self-check item"), !conditions.check && "pass the knowledge check"].filter(Boolean);
+  const missing = [!conditions.steps && t["ui.task.missing.steps"], !conditions.evidence && t["ui.task.missing.evidence"], !conditions.criteria && (one ? t["ui.task.missing.choose"] : t["ui.task.missing.criteria"]), !conditions.check && t["ui.task.missing.check"]].filter((m): m is string => Boolean(m));
 
   async function onComplete() {
     setBusy(true);
     setError(null);
-    const r = await markLessonComplete(lessonId).catch(() => ({ ok: false as const, error: "We couldn't save your changes. Check your connection, then try again." }));
+    const r = await markLessonComplete(lessonId).catch(() => ({ ok: false as const, error: t["ui.saveFailed"] }));
     setBusy(false);
     if (r.ok) {
       setComplete(true);
@@ -90,14 +93,14 @@ export function TaskPageClient(props: Props) {
 
       <section className="ob-card ob-card--outlined gl-selfcheck" aria-labelledby="selfcheck-heading">
         <h2 id="selfcheck-heading" className="ob-h t-section-heading">
-          Final self-check
+          {t["ui.task.selfCheck"]}
         </h2>
         <div className="gl-prose gl-prose--compact">
           <Blocks blocks={criteria.intro} />
         </div>
         {one ? (
           <fieldset className="ob-fieldset gl-criteria">
-            <legend>Choose the statement that applies to you</legend>
+            <legend>{t["ui.task.chooseStatement"]}</legend>
             {criteria.items.map((c) => {
               const first = c.children[0];
               return (
@@ -134,46 +137,46 @@ export function TaskPageClient(props: Props) {
 
       <section className="ob-card ob-card--outlined gl-complete" aria-labelledby="complete-heading">
         <h2 id="complete-heading" className="ob-h t-section-heading">
-          Mark lesson complete
+          {t["ui.task.markComplete"]}
         </h2>
         {complete ? (
           <div className="gl-complete__done" role="status">
             <p className="ob-p gl-inline-status">
               <ProgressBadge status="complete" />
-              <span>You marked this lesson complete.</span>
+              <span>{t["ui.task.youMarkedComplete"]}</span>
             </p>
-            <p className="ob-p ob-secondary">Completing a lesson is separate from your supervisor&apos;s review, which you record in My work.</p>
+            <p className="ob-p ob-secondary">{t["ui.task.separateFromReview"]}</p>
             {props.next ? (
               <p className="ob-p">
                 <Link className="ob-btn ob-btn--primary" href={`/lesson/${props.next.slug}`}>
-                  Start Lesson {props.next.id}
+                  {t["ui.task.startLesson"](props.next.id)}
                 </Link>
               </p>
             ) : null}
           </div>
         ) : (
           <>
-            <p className="ob-p">You can mark the lesson complete when all four are done. Your supervisor&apos;s review is not one of them.</p>
+            <p className="ob-p">{t["ui.task.allFour"]}</p>
             <ul className="gl-conditions">
-              <Condition ok={conditions.steps} label="Task steps" detail={`${stepsDone} of ${task.steps.length} ticked.`} />
-              <Condition ok={conditions.evidence} label="Evidence" detail={submitted ? "Submitted." : "Nothing submitted yet."} href={`/lesson/${slug}/submit`} linkText="Submit evidence" />
-              <Condition ok={conditions.criteria} label="Self-check" detail={one ? (chosen ? "Statement chosen." : "No statement chosen.") : `${chosen} of ${criteria.items.length} ticked.`} />
+              <Condition ok={conditions.steps} label={t["ui.task.cond.steps"]} detail={t["ui.task.ticked"](stepsDone, task.steps.length)} />
+              <Condition ok={conditions.evidence} label={t["ui.task.cond.evidence"]} detail={submitted ? t["ui.task.submitted"] : t["ui.task.nothingSubmitted"]} href={`/lesson/${slug}/submit`} linkText={t["ui.task.submitEvidence"]} />
+              <Condition ok={conditions.criteria} label={t["ui.task.cond.selfCheck"]} detail={one ? (chosen ? t["ui.task.statementChosen"] : t["ui.task.noStatement"]) : t["ui.task.ticked"](chosen, criteria.items.length)} />
               <Condition
                 ok={conditions.check}
-                label="Knowledge check"
-                detail={check === "passed" ? "Passed." : check === "unavailable" ? "Not yet available for this lesson, so it is skipped." : "Answer all five questions correctly."}
+                label={t["ui.task.cond.check"]}
+                detail={check === "passed" ? t["ui.task.checkPassed"] : check === "unavailable" ? t["ui.task.checkSkipped"] : t["ui.task.checkPending"]}
                 href={`/lesson/${slug}/check`}
-                linkText="Go to the knowledge check"
+                linkText={t["ui.task.goToCheck"]}
               />
             </ul>
             <div className="ob-card__actions">
               <button type="button" className="ob-btn ob-btn--primary ob-btn--large" disabled={!ready || !canSave || busy} aria-busy={busy || undefined} aria-describedby={ready ? undefined : "complete-why"} onClick={onComplete}>
-                {busy ? "Saving…" : "Mark lesson complete"}
+                {busy ? t["ui.task.saving"] : t["ui.task.markComplete"]}
               </button>
             </div>
             {!ready ? (
               <p id="complete-why" className="ob-p ob-secondary">
-                To finish, {missing.length > 1 ? `${missing.slice(0, -1).join(", ")} and ${missing[missing.length - 1]}` : missing[0]}.
+                {t["ui.task.toFinish"](missing)}
               </p>
             ) : null}
             {error ? (
@@ -188,7 +191,7 @@ export function TaskPageClient(props: Props) {
 
       <p className="ob-p">
         <Link className="ob-btn ob-btn--tertiary" href={`/lesson/${slug}#section-${props.lastSection}`}>
-          Back to the lesson
+          {t["ui.task.backToLesson"]}
         </Link>
       </p>
     </div>

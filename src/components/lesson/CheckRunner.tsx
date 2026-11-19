@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useId, useRef, useState } from "react";
 import type { PublicQuestion } from "@/lib/knowledge-checks";
 import { checkAnswer } from "@/lib/actions/check";
+import { useT } from "@/lib/i18n/client";
 
 type Result = { correct: boolean; explanation: string } | null;
 
@@ -21,16 +22,17 @@ export function CheckRunner({ lessonId, slug, questions, correctSoFar, canSave }
   const [busy, setBusy] = useState(false);
   const legendRef = useRef<HTMLLegendElement>(null);
   const groupId = useId();
+  const t = useT();
 
   const passed = correct.size === questions.length;
   const q = questions[index];
 
   async function check() {
     if (!q) return;
-    if (!choice) return setError("Choose an answer, then select Check answer.");
+    if (!choice) return setError(t["ui.check.chooseFirst"]);
     setBusy(true);
     setError(null);
-    const r = await checkAnswer(lessonId, q.id, choice).catch(() => ({ ok: false as const, error: "We couldn't save your answer. Check your connection, then try again." }));
+    const r = await checkAnswer(lessonId, q.id, choice).catch(() => ({ ok: false as const, error: t["ui.check.saveFailed"] }));
     setBusy(false);
     if (!r.ok) return setError(r.error);
     setResult({ correct: r.correct, explanation: r.explanation });
@@ -51,11 +53,11 @@ export function CheckRunner({ lessonId, slug, questions, correctSoFar, canSave }
       <div className="ob-alert ob-alert--success gl-alert" role="status">
         <span className="ob-glyph" aria-hidden="true">✓</span>
         <div>
-          <p className="ob-alert__title">Knowledge check passed</p>
-          <p className="ob-p">You answered all {questions.length} questions correctly. This does not mean your supervisor has accepted your work; that is recorded separately.</p>
+          <p className="ob-alert__title">{t["ui.check.passed"]}</p>
+          <p className="ob-p">{t["ui.check.passedBody"](questions.length)}</p>
           <p className="ob-p">
             <Link className="ob-btn ob-btn--primary" href={`/lesson/${slug}/task`}>
-              Back to your task
+              {t["ui.check.backToTask"]}
             </Link>
           </p>
         </div>
@@ -67,11 +69,11 @@ export function CheckRunner({ lessonId, slug, questions, correctSoFar, canSave }
   return (
     <div className="gl-check">
       <p className="ob-p t-label-meta ob-secondary">
-        {correct.size} of {questions.length} answered correctly
+        {t["ui.check.progress"](correct.size, questions.length)}
       </p>
       <div className="ob-card ob-card--outlined gl-question">
         <span className="ob-qhead">
-          Question {index + 1} of {questions.length}
+          {t["ui.check.question"](index + 1, questions.length)}
         </span>
         <fieldset className="ob-fieldset" aria-describedby={error ? `${groupId}-error` : undefined} disabled={busy || (result?.correct ?? false)}>
           <legend ref={legendRef} tabIndex={-1}>
@@ -97,7 +99,7 @@ export function CheckRunner({ lessonId, slug, questions, correctSoFar, canSave }
         <div role="status" className="gl-check__result">
           {result ? (
             <div className={`ob-callout ${result.correct ? "ob-callout--checked" : "ob-callout--dependency"}`}>
-              <p className="ob-callout__label ob-p">{result.correct ? "Correct" : "Not quite. Try again."}</p>
+              <p className="ob-callout__label ob-p">{result.correct ? t["ui.check.correct"] : t["ui.check.tryAgain"]}</p>
               <p className="ob-p">{result.explanation}</p>
             </div>
           ) : null}
@@ -111,11 +113,11 @@ export function CheckRunner({ lessonId, slug, questions, correctSoFar, canSave }
         <div className="ob-card__actions">
           {result?.correct ? (
             <button type="button" className="ob-btn ob-btn--primary" onClick={next}>
-              {correct.size === questions.length ? "Finish" : "Next question"}
+              {correct.size === questions.length ? t["ui.check.finish"] : t["ui.check.next"]}
             </button>
           ) : (
             <button type="button" className="ob-btn ob-btn--primary" disabled={!canSave || busy} aria-busy={busy || undefined} onClick={check}>
-              {busy ? "Checking…" : "Check answer"}
+              {busy ? t["ui.check.checking"] : t["ui.check.check"]}
             </button>
           )}
         </div>

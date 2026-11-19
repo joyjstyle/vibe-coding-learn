@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import { useT } from "@/lib/i18n/client";
 import { Drawer } from "../Drawer";
 import { OutlineNav, type OutlineData } from "./OutlineNav";
 
@@ -31,6 +32,7 @@ export function useLessonNav(): LessonNav {
 export function LessonNavProvider({ outline, children }: { outline: OutlineData; children: ReactNode }) {
   const [section, setSection] = useState<number | null>(null);
   const [outlineOpen, setOutlineOpen] = useState(false);
+  const t = useT();
   const selectRef = useRef<SelectSection | null>(null);
   const registerSelect = useCallback((fn: SelectSection | null) => {
     selectRef.current = fn;
@@ -44,7 +46,7 @@ export function LessonNavProvider({ outline, children }: { outline: OutlineData;
   return (
     <Ctx.Provider value={value}>
       {children}
-      <Drawer open={outlineOpen} onClose={() => setOutlineOpen(false)} title="Outline">
+      <Drawer open={outlineOpen} onClose={() => setOutlineOpen(false)} title={t["ui.outline"]}>
         <OutlineNav onNavigate={() => setOutlineOpen(false)} />
       </Drawer>
     </Ctx.Provider>

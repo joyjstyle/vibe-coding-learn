@@ -1,13 +1,17 @@
+"use client";
+
 import type { Block, TableCell } from "@/lib/content/model";
+import { useT } from "@/lib/i18n/client";
 import { inlineText } from "@/lib/content/text";
 import { CodeCard } from "./CodeCard";
 import { Inlines } from "./Inlines";
 
 /** Lesson tables: a normal table from 720px; below that each row becomes a stacked card. */
 function ResponsiveTable({ block }: { block: Extract<Block, { type: "table" }> }) {
+  const t = useT();
   const labels = block.header.map((h: TableCell) => inlineText(h).trim());
   return (
-    <div className="gl-table" role="region" aria-label="Table" tabIndex={0}>
+    <div className="gl-table" role="region" aria-label={t["ui.table"]} tabIndex={0}>
       <table role="table">
         <thead role="rowgroup">
           <tr role="row">

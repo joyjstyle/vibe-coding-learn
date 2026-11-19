@@ -1,51 +1,55 @@
+"use client";
+
+import { useT } from "@/lib/i18n/client";
 import { ComingSoonBadge, DayChip, ProgressBadge, ReviewTag, SubmissionBadge } from "../StatusBadges";
 
 /** Statuses explained, from the IA plan's status model. Shown in the Toolkit and the Help drawer. */
 export function StatusesExplained({ compact = false }: { compact?: boolean }) {
+  const t = useT();
   const H = compact ? "h3" : "h2";
   const cls = compact ? "ob-h t-label-meta gl-status-kind" : "ob-h t-section-heading";
   return (
     <div className="gl-statuses">
-      <section aria-label="Lesson progress">
-        <H className={cls}>Lesson progress</H>
-        <p className="ob-p ob-secondary">How far you are with a lesson. You set it, except Locked.</p>
+      <section aria-label={t["ui.statuses.progress"]}>
+        <H className={cls}>{t["ui.statuses.progress"]}</H>
+        <p className="ob-p ob-secondary">{t["ui.statuses.progressLead"]}</p>
         <dl className="gl-status-list">
-          <dt><ProgressBadge status="locked" /></dt><dd>The lesson&apos;s day has not opened yet. Days open on the calendar.</dd>
-          <dt><ProgressBadge status="not_started" /></dt><dd>Open, and you have not opened it yet.</dd>
-          <dt><ProgressBadge status="in_progress" /></dt><dd>You have started reading or ticking steps.</dd>
-          <dt><ProgressBadge status="complete" /></dt><dd>You marked it complete: steps ticked, evidence submitted, self-check ticked, and the knowledge check passed or not yet available.</dd>
-          <dt><ComingSoonBadge /></dt><dd>The lesson is not published yet. This is not the same as Locked.</dd>
+          <dt><ProgressBadge status="locked" /></dt><dd>{t["ui.statuses.progress.locked"]}</dd>
+          <dt><ProgressBadge status="not_started" /></dt><dd>{t["ui.statuses.progress.notStarted"]}</dd>
+          <dt><ProgressBadge status="in_progress" /></dt><dd>{t["ui.statuses.progress.inProgress"]}</dd>
+          <dt><ProgressBadge status="complete" /></dt><dd>{t["ui.statuses.progress.complete"]}</dd>
+          <dt><ComingSoonBadge /></dt><dd>{t["ui.statuses.progress.comingSoon"]}</dd>
         </dl>
       </section>
-      <section aria-label="Review decision">
-        <H className={cls}>Review decision</H>
-        <p className="ob-p ob-secondary">What your supervisor decided outside the platform, as you recorded it. Only at review points. It never affects whether a lesson is complete.</p>
+      <section aria-label={t["ui.statuses.review"]}>
+        <H className={cls}>{t["ui.statuses.review"]}</H>
+        <p className="ob-p ob-secondary">{t["ui.statuses.reviewLead"]}</p>
         <dl className="gl-status-list">
-          <dt><ReviewTag decision="not_submitted" /></dt><dd>Nothing submitted for this review point yet.</dd>
-          <dt><ReviewTag decision="awaiting_review" /></dt><dd>Submitted, and no decision recorded for the latest version.</dd>
-          <dt><ReviewTag decision="changes_requested" /></dt><dd>You recorded that your supervisor asked for changes. Fix the work and resubmit.</dd>
-          <dt><ReviewTag decision="accepted" /></dt><dd>You recorded that your supervisor accepted the latest version.</dd>
+          <dt><ReviewTag decision="not_submitted" /></dt><dd>{t["ui.statuses.review.notSubmitted"]}</dd>
+          <dt><ReviewTag decision="awaiting_review" /></dt><dd>{t["ui.statuses.review.awaiting"]}</dd>
+          <dt><ReviewTag decision="changes_requested" /></dt><dd>{t["ui.statuses.review.changes"]}</dd>
+          <dt><ReviewTag decision="accepted" /></dt><dd>{t["ui.statuses.review.accepted"]}</dd>
         </dl>
       </section>
-      <section aria-label="Submission">
-        <H className={cls}>Submission</H>
+      <section aria-label={t["ui.statuses.submission"]}>
+        <H className={cls}>{t["ui.statuses.submission"]}</H>
         <dl className="gl-status-list">
-          <dt><SubmissionBadge state="draft" /></dt><dd>Saved as a draft, not submitted yet.</dd>
-          <dt><SubmissionBadge state="submitted" /></dt><dd>Your evidence is submitted. Earlier versions are kept when you resubmit.</dd>
+          <dt><SubmissionBadge state="draft" /></dt><dd>{t["ui.statuses.submission.draft"]}</dd>
+          <dt><SubmissionBadge state="submitted" /></dt><dd>{t["ui.statuses.submission.submitted"]}</dd>
         </dl>
       </section>
-      <section aria-label="Day access">
-        <H className={cls}>Day access</H>
-        <p className="ob-p ob-secondary">Set by the calendar: Day N opens on your cohort&apos;s Nth working day.</p>
+      <section aria-label={t["ui.statuses.day"]}>
+        <H className={cls}>{t["ui.statuses.day"]}</H>
+        <p className="ob-p ob-secondary">{t["ui.statuses.dayLead"]}</p>
         <dl className="gl-status-list">
-          <dt><DayChip access="locked" /></dt><dd>Not open yet. The Syllabus shows the date it opens.</dd>
-          <dt><DayChip access="open" /></dt><dd>Open. Earlier days stay open, so you can catch up.</dd>
-          <dt><DayChip access="done" /></dt><dd>Every lesson in the day is complete.</dd>
+          <dt><DayChip access="locked" /></dt><dd>{t["ui.statuses.day.locked"]}</dd>
+          <dt><DayChip access="open" /></dt><dd>{t["ui.statuses.day.open"]}</dd>
+          <dt><DayChip access="done" /></dt><dd>{t["ui.statuses.day.done"]}</dd>
         </dl>
       </section>
-      <section aria-label="Words in your evidence">
-        <H className={cls}>Words in your evidence</H>
-        <p className="ob-p">Check results (Passed, Failed, Not checked, Not applicable) and finding statuses (Open; Corrected, awaiting verification; Verified; Awaiting decision) belong to your own records. They are never platform statuses and never appear as badges here.</p>
+      <section aria-label={t["ui.statuses.words"]}>
+        <H className={cls}>{t["ui.statuses.words"]}</H>
+        <p className="ob-p">{t["ui.statuses.wordsBody"]}</p>
       </section>
     </div>
   );

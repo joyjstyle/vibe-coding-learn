@@ -4,15 +4,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { saveSettings } from "@/lib/actions/settings";
 import type { Settings, TextSize } from "@/lib/platform/settings";
+import { useT } from "@/lib/i18n/client";
 
-const SIZES: { value: TextSize; label: string; hint: string }[] = [
-  { value: "default", label: "Default", hint: "The standard size" },
-  { value: "large", label: "Large", hint: "About an eighth larger" },
-  { value: "larger", label: "Larger", hint: "About a quarter larger" },
-];
+const SIZES = [
+  { value: "default", label: "pages.settings.size.default", hint: "pages.settings.size.defaultHint" },
+  { value: "large", label: "pages.settings.size.large", hint: "pages.settings.size.largeHint" },
+  { value: "larger", label: "pages.settings.size.larger", hint: "pages.settings.size.largerHint" },
+] as const satisfies readonly { value: TextSize; label: string; hint: string }[];
 
 export function SettingsForm({ initial, canSave }: { initial: Settings; canSave: boolean }) {
   const router = useRouter();
+  const t = useT();
   const [name, setName] = useState(initial.name ?? "");
   const [textSize, setTextSize] = useState<TextSize>(initial.textSize);
   const [reducedMotion, setReducedMotion] = useState(initial.reducedMotion);
@@ -22,13 +24,13 @@ export function SettingsForm({ initial, canSave }: { initial: Settings; canSave:
   async function save() {
     setBusy(true);
     setStatus(null);
-    const r = await saveSettings({ name, textSize, reducedMotion }).catch(() => ({ ok: false as const, error: "We couldn't save your changes. Check your connection, then try again." }));
+    const r = await saveSettings({ name, textSize, reducedMotion }).catch(() => ({ ok: false as const, error: t["pages.settings.saveError"] }));
     setBusy(false);
     if (r.ok) {
       // Apply at once; the server applies the same values on every page from now on.
       document.documentElement.dataset.textSize = textSize;
       document.documentElement.dataset.reducedMotion = String(reducedMotion);
-      setStatus({ kind: "ok", text: "Saved" });
+      setStatus({ kind: "ok", text: t["pages.settings.saved"] });
       router.refresh();
     } else setStatus({ kind: "error", text: r.error, field: "field" in r ? r.field : undefined });
   }
@@ -42,18 +44,18 @@ export function SettingsForm({ initial, canSave }: { initial: Settings; canSave:
         void save();
       }}
     >
-      {!canSave ? <p className="ob-p ob-alert ob-alert--info">Your settings can&apos;t be saved because you&apos;re not signed in.</p> : null}
+      {!canSave ? <p className="ob-p ob-alert ob-alert--info">{t["pages.settings.notSignedIn"]}</p> : null}
 
       <section className="ob-card ob-card--outlined gl-settings__group" aria-labelledby="set-name">
         <h2 id="set-name" className="ob-h t-card-title">
-          Your name
+          {t["pages.settings.nameHeading"]}
         </h2>
         <div className="ob-field">
           <label className="ob-label" htmlFor="name">
-            Name <span className="ob-req">(optional)</span>
+            {t["pages.settings.nameLabel"]} <span className="ob-req">{t["pages.settings.optional"]}</span>
           </label>
           <p className="ob-help" id="name-help">
-            Shown as your initials in the top bar. Leave it blank to show none.
+            {t["pages.settings.nameHelp"]}
           </p>
           <input id="name" className="ob-input" autoComplete="name" maxLength={80} value={name} aria-describedby="name-help" aria-invalid={status?.field === "name" || undefined} onChange={(e) => setName(e.target.value)} />
         </div>
@@ -61,15 +63,15 @@ export function SettingsForm({ initial, canSave }: { initial: Settings; canSave:
 
       <section className="ob-card ob-card--outlined gl-settings__group" aria-labelledby="set-text">
         <h2 id="set-text" className="ob-h t-card-title">
-          Text size
+          {t["pages.settings.textSize"]}
         </h2>
         <fieldset className="ob-fieldset">
-          <legend className="sr-only">Text size</legend>
+          <legend className="sr-only">{t["pages.settings.textSize"]}</legend>
           {SIZES.map((s) => (
             <label key={s.value} className="ob-option gl-option-two-line">
               <input type="radio" name="textSize" value={s.value} checked={textSize === s.value} onChange={() => setTextSize(s.value)} />
               <span>
-                {s.label} <span className="ob-secondary">· {s.hint}</span>
+                {t[s.label]} <span className="ob-secondary">· {t[s.hint]}</span>
               </span>
             </label>
           ))}
@@ -78,20 +80,20 @@ export function SettingsForm({ initial, canSave }: { initial: Settings; canSave:
 
       <section className="ob-card ob-card--outlined gl-settings__group" aria-labelledby="set-motion">
         <h2 id="set-motion" className="ob-h t-card-title">
-          Motion
+          {t["pages.settings.motion"]}
         </h2>
         <div className="ob-check">
           <input type="checkbox" id="reduced-motion" checked={reducedMotion} aria-describedby="motion-help" onChange={(e) => setReducedMotion(e.target.checked)} />
-          <label htmlFor="reduced-motion">Reduce motion</label>
+          <label htmlFor="reduced-motion">{t["pages.settings.reduceMotion"]}</label>
         </div>
         <p className="ob-help" id="motion-help">
-          Turns off animations, such as drawers sliding in. If your device is set to reduce motion, Genie Lab already follows it.
+          {t["pages.settings.motionHelp"]}
         </p>
       </section>
 
       <div className="ob-card__actions">
         <button type="submit" className="ob-btn ob-btn--primary ob-btn--large" disabled={!canSave || busy} aria-busy={busy || undefined}>
-          {busy ? "Saving…" : "Save settings"}
+          {busy ? t["pages.settings.saving"] : t["pages.settings.save"]}
         </button>
       </div>
       <p className="ob-p t-label-meta gl-save" role="status">

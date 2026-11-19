@@ -160,10 +160,27 @@ function phrasingText(nodes: PhrasingContent[]): string {
   return nodes.map((n) => ("value" in n ? n.value : "children" in n ? phrasingText(n.children as PhrasingContent[]) : "")).join("");
 }
 
-/** Lesson IDs named after "Lesson" or "Lessons", such as "Lessons 4.1 and 4.2". */
+/**
+ * Vietnamese lessons (content/vi) may use these headings and labels in place of the English
+ * ones; each maps to the English name the rest of the parser expects.
+ */
+export const VI_ALIASES: Record<string, string> = {
+  "Mục tiêu bài học": "Learning objective",
+  "Bài tập thực hành": "Practical exercise",
+  "Sản phẩm cần nộp": "Expected submission",
+  "Tiêu chí hoàn thành": "Completion criteria",
+  "Kiểm tra kiến thức": "Knowledge check",
+  "Tài liệu tham khảo chính thức": "Official references",
+  "Điều kiện tiên quyết:": "Prerequisites:",
+  "Tài liệu cần chuẩn bị:": "Required materials:",
+  "Kết quả của bạn:": "Your output:",
+};
+const canon = (text: string) => VI_ALIASES[text] ?? text;
+
+/** Lesson IDs named after "Lesson" or "Lessons" (or Vietnamese "Bài"), such as "Lessons 4.1 and 4.2". */
 export function lessonReferences(text: string): string[] {
   const ids: string[] = [];
-  for (const m of text.matchAll(/\bLessons?\s+(\d+\.\d+(?:(?:\s*,\s*|\s+and\s+|\s+or\s+|\s+to\s+)\d+\.\d+)*)/g)) {
+  for (const m of text.matchAll(/(?:\bLessons?|(?<![\p{L}])Bài)\s+(\d+\.\d+(?:(?:\s*,\s*|\s+(?:and|or|to|và|hoặc|đến)\s+)\d+\.\d+)*)/gu)) {
     for (const id of m[1]!.match(/\d+\.\d+/g) ?? []) if (!ids.includes(id)) ids.push(id);
   }
   return ids;
@@ -207,7 +224,7 @@ function parseTask(s: RawSection, ctx: Ctx): TaskPart {
   const first = nodes[0];
   if (first?.type === "paragraph" && first.children.length === 1 && first.children[0]!.type === "strong") {
     const text = phrasingText(first.children[0]!.children);
-    if (/^Task:/.test(text)) {
+    if (/^(Task|Nhiệm vụ):/.test(text)) {
       heading = toInlines(first.children[0]!.children, ctx);
       nodes = nodes.slice(1);
     }
@@ -229,7 +246,7 @@ function parseCriteria(s: RawSection, ctx: Ctx): CriteriaPart {
   if (checks.some((c) => c === true)) throw new ContentError(ctx.id, "a completion criterion is pre-ticked in the file", lineOf(list));
   const intro = toBlocks(before, ctx);
   const lastIntro = intro[intro.length - 1];
-  const either = lastIntro?.type === "paragraph" && /\beither:\s*$/.test(inlineText(lastIntro.children));
+  const either = lastIntro?.type === "paragraph" && /(\beither|một trong các điều sau):\s*$/.test(inlineText(lastIntro.children));
   return { number: s.number, intro, mode: either ? "one" : "all", checklist, items: checkItems(list, "c", ctx), after: toBlocks(after, ctx) };
 }
 
@@ -258,7 +275,7 @@ export function parseLesson(markdown: string, meta: LessonMeta): Lesson {
 
   // Title line: "# Lesson X.Y: Title"
   if (!h1 || h1.type !== "heading" || h1.depth !== 1) throw new ContentError(ctx.id, "the first line is not a level 1 heading", h1 && lineOf(h1));
-  const titleMatch = /^Lesson (\d+\.\d+): (.+)$/.exec(phrasingText(h1.children).trim());
+  const titleMatch = /^(?:Lesson|Bài) (\d+\.\d+): (.+)$/.exec(phrasingText(h1.children).trim());
   if (!titleMatch) throw new ContentError(ctx.id, 'the first line does not read "# Lesson X.Y: Title"', lineOf(h1));
   if (titleMatch[1] !== meta.id) throw new ContentError(ctx.id, `the file is headed Lesson ${titleMatch[1]}`, lineOf(h1));
   const title = titleMatch[2]!.trim();
@@ -270,7 +287,7 @@ export function parseLesson(markdown: string, meta: LessonMeta): Lesson {
     if (node.type === "heading" && node.depth <= 2) {
       const m = node.depth === 2 ? /^(\d+)\. (.+)$/.exec(phrasingText(node.children).trim()) : null;
       if (!m) throw new ContentError(ctx.id, `unrecognised heading "${phrasingText(node.children)}"`, lineOf(node));
-      raw.push({ number: Number(m[1]), title: m[2]!.trim(), nodes: [], line: lineOf(node) });
+      raw.push({ number: Number(m[1]), title: canon(m[2]!.trim()), nodes: [], line: lineOf(node) });
     } else if (raw.length) raw[raw.length - 1]!.nodes.push(node);
     else preamble.push(node);
   }
@@ -280,7 +297,7 @@ export function parseLesson(markdown: string, meta: LessonMeta): Lesson {
 
   // Preamble: learning objective, then labelled paragraphs.
   const objHead = preamble[0];
-  if (!objHead || objHead.type !== "heading" || objHead.depth !== 3 || phrasingText(objHead.children).trim() !== "Learning objective") {
+  if (!objHead || objHead.type !== "heading" || objHead.depth !== 3 || canon(phrasingText(objHead.children).trim()) !== "Learning objective") {
     throw new ContentError(ctx.id, 'expected "### Learning objective" after the title', objHead && lineOf(objHead));
   }
   let i = 1;
@@ -297,7 +314,7 @@ export function parseLesson(markdown: string, meta: LessonMeta): Lesson {
   const fields: Partial<Record<(typeof PREAMBLE_FIELDS)[keyof typeof PREAMBLE_FIELDS], Inline[]>> = {};
   for (const node of preamble.slice(i)) {
     const lp = node.type === "paragraph" ? labelledParagraph(node, ctx) : null;
-    const key = lp ? PREAMBLE_FIELDS[lp.label as keyof typeof PREAMBLE_FIELDS] : undefined;
+    const key = lp ? PREAMBLE_FIELDS[canon(lp.label) as keyof typeof PREAMBLE_FIELDS] : undefined;
     if (!lp || !key) throw new ContentError(ctx.id, "unrecognised content before section 1", lineOf(node));
     if (fields[key]) throw new ContentError(ctx.id, `"${lp.label}" appears twice`, lineOf(node));
     fields[key] = lp.content;

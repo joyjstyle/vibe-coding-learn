@@ -1,12 +1,17 @@
 import { ShareShell } from "./shell";
 import { PageHeader } from "@/components/PageHeader";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata = { title: "Shared submission not available", robots: { index: false, follow: false } };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t["pages.share.notFoundMetaTitle"], robots: { index: false, follow: false } };
+}
 
-export default function ShareNotFound() {
+export default async function ShareNotFound() {
+  const t = await getT();
   return (
     <ShareShell>
-      <PageHeader title="This shared submission is not available" lead="The link may have been turned off, or it may be incomplete. Ask the intern who sent it for a new link." />
+      <PageHeader title={t["pages.share.notFoundTitle"]} lead={t["pages.share.notFoundLead"]} />
     </ShareShell>
   );
 }

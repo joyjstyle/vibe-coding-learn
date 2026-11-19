@@ -1,11 +1,16 @@
+"use client";
+
+import { useT } from "@/lib/i18n/client";
+
 /** An honest empty state for content that has not been written or supplied yet. */
 export function NotSupplied({ what, file }: { what: string; file: string }) {
+  const t = useT();
   return (
-    <section className="ob-soon" aria-label={`${what} not yet supplied`}>
-      <span className="ob-badge ob-badge--soon">Not yet supplied</span>
-      <p className="ob-p">{what} has not been supplied yet. It will appear here once it is added.</p>
+    <section className="ob-soon" aria-label={t["ui.notSupplied.label"](what)}>
+      <span className="ob-badge ob-badge--soon">{t["ui.notSupplied.badge"]}</span>
+      <p className="ob-p">{t["ui.notSupplied.body"](what)}</p>
       <p className="ob-p ob-secondary t-label-meta">
-        For the platform team: it will live in <code className="gl-inline-code">{file}</code>.
+        {t["ui.notSupplied.platformBefore"]}<code className="gl-inline-code">{file}</code>{t["ui.notSupplied.platformAfter"]}
       </p>
     </section>
   );

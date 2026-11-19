@@ -3,10 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { recordReviewOutcome } from "@/lib/actions/work";
+import { useT } from "@/lib/i18n/client";
 
 /** The intern records the decision their supervisor made outside the platform. */
 export function ReviewForm({ lessonId, version, canSave }: { lessonId: string; version: number; canSave: boolean }) {
   const router = useRouter();
+  const t = useT();
   const [decision, setDecision] = useState<"changes_requested" | "accepted" | "">("");
   const [reviewer, setReviewer] = useState("");
   const [notes, setNotes] = useState("");
@@ -16,19 +18,19 @@ export function ReviewForm({ lessonId, version, canSave }: { lessonId: string; v
 
   async function submit() {
     const e: typeof errors = {};
-    if (!decision) e.decision = "Choose the decision your supervisor gave.";
-    if (!reviewer.trim()) e.reviewer = "Add the reviewer's name.";
+    if (!decision) e.decision = t["ui.review.chooseDecision"];
+    if (!reviewer.trim()) e.reviewer = t["ui.review.addReviewer"];
     setErrors(e);
     setSaved(null);
     if (e.decision || e.reviewer) return;
     setBusy(true);
     const r = await recordReviewOutcome(lessonId, { decision: decision as "changes_requested" | "accepted", reviewerName: reviewer, notes }).catch(() => ({
       ok: false as const,
-      error: "We couldn't save your changes. Check your connection, then try again.",
+      error: t["ui.saveFailed"],
     }));
     setBusy(false);
     if (r.ok) {
-      setSaved("Recorded. The decision now shows on this page and in My work.");
+      setSaved(t["ui.review.recorded"]);
       setDecision("");
       setReviewer("");
       setNotes("");
@@ -46,14 +48,14 @@ export function ReviewForm({ lessonId, version, canSave }: { lessonId: string; v
       }}
     >
       <fieldset className="ob-fieldset" aria-describedby={errors.decision ? "decision-error" : undefined}>
-        <legend>Decision for version {version}</legend>
+        <legend>{t["ui.review.decisionFor"](version)}</legend>
         <label className="ob-option">
           <input type="radio" name="decision" value="changes_requested" checked={decision === "changes_requested"} onChange={() => setDecision("changes_requested")} />
-          Changes requested
+          {t["ui.status.changesRequested"]}
         </label>
         <label className="ob-option">
           <input type="radio" name="decision" value="accepted" checked={decision === "accepted"} onChange={() => setDecision("accepted")} />
-          Accepted
+          {t["ui.status.accepted"]}
         </label>
         {errors.decision ? (
           <p id="decision-error" className="ob-error-text">
@@ -64,7 +66,7 @@ export function ReviewForm({ lessonId, version, canSave }: { lessonId: string; v
       </fieldset>
       <div className="ob-field gl-field">
         <label className="ob-label" htmlFor="reviewer">
-          Reviewer&apos;s name <span className="ob-req">(required)</span>
+          {t["ui.review.reviewerName"]} <span className="ob-req">{t["ui.required"]}</span>
         </label>
         <input id="reviewer" className="ob-input" autoComplete="off" value={reviewer} aria-invalid={errors.reviewer ? true : undefined} aria-describedby={errors.reviewer ? "reviewer-error" : undefined} onChange={(e) => setReviewer(e.target.value)} />
         {errors.reviewer ? (
@@ -76,16 +78,16 @@ export function ReviewForm({ lessonId, version, canSave }: { lessonId: string; v
       </div>
       <div className="ob-field gl-field">
         <label className="ob-label" htmlFor="review-notes">
-          Your supervisor&apos;s notes <span className="ob-req">(optional)</span>
+          {t["ui.review.notes"]} <span className="ob-req">{t["ui.optional"]}</span>
         </label>
         <p className="ob-help" id="notes-help">
-          Copy or summarise what your supervisor told you.
+          {t["ui.review.notesHelp"]}
         </p>
         <textarea id="review-notes" className="ob-input" rows={5} value={notes} aria-describedby="notes-help" onChange={(e) => setNotes(e.target.value)} />
       </div>
       <div className="ob-card__actions">
         <button type="submit" className="ob-btn ob-btn--primary" disabled={!canSave || busy} aria-busy={busy || undefined}>
-          {busy ? "Recording…" : "Record review outcome"}
+          {busy ? t["ui.review.recording"] : t["ui.review.record"]}
         </button>
       </div>
       <p className="ob-p t-label-meta gl-save" role="status">

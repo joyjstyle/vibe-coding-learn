@@ -44,7 +44,52 @@ export class BetterAuthProvider implements AuthProvider {
   }
 }
 
-export const auth: AuthProvider = isDatabaseMode() ? new BetterAuthProvider() : new DevAuthProvider();
+/**
+ * Sign-in is off unless GENIE_LAB_LOGIN=1. With sign-in off, everyone uses one shared
+ * account, so all data belongs to a single user.
+ */
+export function isLoginEnabled(): boolean {
+  return process.env.GENIE_LAB_LOGIN === "1";
+}
+
+const SOLO_ID = "solo-intern";
+const gs = globalThis as unknown as { __genieSoloIntern?: Promise<Intern> };
+
+/**
+ * No sign-in: the one user is the oldest account in Neon (so data already saved is kept),
+ * or a new "solo-intern" account when there is none. The data tables reference "user", so
+ * the account must exist.
+ */
+export class SingleUserAuthProvider implements AuthProvider {
+  getCurrentIntern(): Promise<Intern | null> {
+    gs.__genieSoloIntern ??= (async () => {
+      const db = pool();
+      const found = await db.query<{ id: string; name: string | null }>(
+        `select id, name from "user" order by "createdAt" asc limit 1`,
+      );
+      let row = found.rows[0];
+      if (!row) {
+        await db.query(
+          `insert into "user" (id, name, email, "emailVerified", "createdAt", "updatedAt")
+           values ($1, '', 'solo@genie-lab.local', false, now(), now()) on conflict (id) do nothing`,
+          [SOLO_ID],
+        );
+        row = { id: SOLO_ID, name: null };
+      }
+      return { id: row.id, name: row.name?.trim() || null };
+    })().catch((e) => {
+      gs.__genieSoloIntern = undefined;
+      throw e;
+    });
+    return gs.__genieSoloIntern;
+  }
+}
+
+export const auth: AuthProvider = !isDatabaseMode()
+  ? new DevAuthProvider()
+  : isLoginEnabled()
+    ? new BetterAuthProvider()
+    : new SingleUserAuthProvider();
 
 /** "Ada Lovelace" becomes "AL"; one word gives one letter; no name gives null. */
 export function initials(name: string | null): string | null {

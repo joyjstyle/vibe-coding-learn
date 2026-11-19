@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { FileText, Link as LinkIcon, Paperclip, X } from "lucide-react";
 import type { Inline } from "@/lib/content/model";
-import { FILE_ACCEPT, FILE_TYPES_LABEL, MAX_FILE_LABEL } from "@/lib/evidence-rules";
+import { FILE_ACCEPT, fileTypesLabel, MAX_FILE_LABEL } from "@/lib/evidence-rules";
 import type { FileRef } from "@/lib/platform/files";
 import { saveDraft, submitEvidence, uploadEvidenceFile, type EvidenceInput, type SubmitProblem } from "@/lib/actions/work";
+import { LOCALE } from "@/lib/i18n/lang";
+import { useLang, useT } from "@/lib/i18n/client";
 import { Inlines } from "../content/Inlines";
 import { Dialog } from "../Dialog";
 
@@ -17,7 +19,7 @@ export type ItemValue = { kind: Kind; text: string; url: string; file: FileRef |
 
 type Upload = { state: "idle" } | { state: "uploading"; name: string } | { state: "failed"; name: string; reason: string; file: File };
 
-const KIND_LABEL: Record<Kind, string> = { text: "Paste text", link: "Add a link", file: "Upload a file" };
+const KIND_LABEL = { text: "ui.evidence.kind.text", link: "ui.evidence.kind.link", file: "ui.evidence.kind.file" } as const satisfies Record<Kind, string>;
 const KIND_ICON = { text: FileText, link: LinkIcon, file: Paperclip };
 
 function formatSize(bytes: number) {
@@ -46,6 +48,8 @@ export function EvidenceForm({
   draftSavedAt: string | null;
 }) {
   const router = useRouter();
+  const t = useT();
+  const lang = useLang();
   const formId = useId();
   const [values, setValues] = useState<Record<string, ItemValue>>(initial);
   const [commit, setCommit] = useState(initialCommit);
@@ -79,7 +83,7 @@ export function EvidenceForm({
     try {
       result = await uploadEvidenceFile(lessonId, form);
     } catch {
-      result = { ok: false, error: `We couldn't upload ${file.name}. Try again, or remove it.` };
+      result = { ok: false, error: t["ui.evidence.uploadFailed"](file.name) };
     }
     if (result.ok) {
       set(id, { file: result.file });
@@ -103,11 +107,11 @@ export function EvidenceForm({
     items.forEach((it, i) => {
       const v = values[it.id]!;
       const n = i + 1;
-      if (v.kind === "text" && !v.text.trim()) out.push({ itemId: it.id, message: `Item ${n} is empty. Add text, a link or a file.` });
-      if (v.kind === "link" && !/^https?:\/\/\S+$/i.test(v.url.trim())) out.push({ itemId: it.id, message: `Item ${n} needs a full link starting with https://.` });
-      if (v.kind === "file" && !v.file) out.push({ itemId: it.id, message: `Item ${n} has no uploaded file. Choose a file, or use text or a link.` });
+      if (v.kind === "text" && !v.text.trim()) out.push({ itemId: it.id, message: t["ui.evidence.itemEmpty"](n) });
+      if (v.kind === "link" && !/^https?:\/\/\S+$/i.test(v.url.trim())) out.push({ itemId: it.id, message: t["ui.evidence.itemLink"](n) });
+      if (v.kind === "file" && !v.file) out.push({ itemId: it.id, message: t["ui.evidence.itemNoFile"](n) });
     });
-    if (commit.trim() && !/^[0-9a-f]{7,40}$/i.test(commit.trim())) out.push({ itemId: "gitCommit", message: "The Git commit should be 7 to 40 letters and numbers, as shown by git log." });
+    if (commit.trim() && !/^[0-9a-f]{7,40}$/i.test(commit.trim())) out.push({ itemId: "gitCommit", message: t["ui.evidence.commitInvalid"] });
     return out;
   }
 
@@ -123,10 +127,10 @@ export function EvidenceForm({
       const r = await saveDraft(lessonId, payload());
       if (r.ok) {
         setDirty(false);
-        setStatus({ kind: "saved", text: "Draft saved. It stays here until you submit." });
+        setStatus({ kind: "saved", text: t["ui.evidence.draftSaved"] });
       } else setStatus({ kind: "error", text: r.error });
     } catch {
-      setStatus({ kind: "error", text: "We couldn't save your changes. Check your connection, then try again." });
+      setStatus({ kind: "error", text: t["ui.saveFailed"] });
     }
     setBusy(null);
   }
@@ -153,7 +157,7 @@ export function EvidenceForm({
       else setStatus({ kind: "error", text: r.error });
     } catch {
       setConfirming(false);
-      setStatus({ kind: "error", text: "We couldn't submit your evidence. Your entries are still here. Check your connection, then try again." });
+      setStatus({ kind: "error", text: t["ui.evidence.submitFailed"] });
     }
     setBusy(null);
   }
@@ -161,8 +165,8 @@ export function EvidenceForm({
   const problemFor = (id: string) => problems.find((p) => p.itemId === id);
   const summaryItems = items.map((it, i) => {
     const v = values[it.id]!;
-    const what = v.kind === "text" ? `text (${v.text.trim().length} characters)` : v.kind === "link" ? `link: ${v.url.trim()}` : `file: ${v.file?.name ?? "none"}`;
-    return `Item ${i + 1}: ${what}`;
+    const what = v.kind === "text" ? t["ui.evidence.summaryText"](v.text.trim().length) : v.kind === "link" ? t["ui.evidence.summaryLink"](v.url.trim()) : t["ui.evidence.summaryFile"](v.file?.name ?? t["ui.evidence.none"]);
+    return t["ui.evidence.summaryItem"](i + 1, what);
   });
 
   return (
@@ -175,14 +179,14 @@ export function EvidenceForm({
         onSubmitClick();
       }}
     >
-      {!canSave ? <p className="ob-p ob-alert ob-alert--info">Your evidence can&apos;t be saved because you&apos;re not signed in.</p> : null}
+      {!canSave ? <p className="ob-p ob-alert ob-alert--info">{t["ui.evidence.notSignedIn"]}</p> : null}
 
       {problems.length ? (
         <div ref={summaryRef} tabIndex={-1} className="ob-alert ob-alert--error gl-error-summary" role="alert" aria-labelledby="problems-title">
           <span className="ob-glyph" aria-hidden="true">!</span>
           <div>
             <p id="problems-title" className="ob-alert__title">
-              Some items need attention before you can submit
+              {t["ui.evidence.needsAttention"]}
             </p>
             <ul className="gl-bullets">
               {problems.map((p) => (
@@ -197,7 +201,7 @@ export function EvidenceForm({
         </div>
       ) : null}
 
-      {draftSavedAt ? <p className="ob-p ob-secondary t-label-meta">Draft last saved {new Date(draftSavedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}.</p> : null}
+      {draftSavedAt ? <p className="ob-p ob-secondary t-label-meta">{t["ui.evidence.draftLastSaved"](new Date(draftSavedAt).toLocaleString(LOCALE[lang], { dateStyle: "medium", timeStyle: "short" }))}</p> : null}
 
       <ol className="gl-evidence__items">
         {items.map((it, i) => {
@@ -210,21 +214,21 @@ export function EvidenceForm({
               <fieldset id={`item-${it.id}`} tabIndex={-1} className="ob-card ob-card--outlined gl-evidence__item" aria-describedby={problem ? errId : undefined}>
                 <legend className="gl-evidence__legend">
                   <span className="t-label-meta gl-evidence__n">
-                    Item {i + 1} of {items.length} <span className="ob-req">(required)</span>
+                    {t["ui.evidence.itemOf"](i + 1, items.length)} <span className="ob-req">{t["ui.required"]}</span>
                   </span>
                   <span className="gl-evidence__label">
                     <Inlines nodes={it.label} />
                   </span>
                 </legend>
 
-                <div className="gl-kinds" role="radiogroup" aria-label={`How you'll provide item ${i + 1}`}>
+                <div className="gl-kinds" role="radiogroup" aria-label={t["ui.evidence.howProvide"](i + 1)}>
                   {(["text", "link", "file"] as const).map((k) => {
                     const Icon = KIND_ICON[k];
                     return (
                       <label key={k} className="ob-option gl-kind">
                         <input type="radio" name={`kind-${it.id}`} value={k} checked={v.kind === k} onChange={() => set(it.id, { kind: k })} />
                         <Icon size={20} aria-hidden="true" focusable="false" />
-                        {KIND_LABEL[k]}
+                        {t[KIND_LABEL[k]]}
                       </label>
                     );
                   })}
@@ -240,7 +244,7 @@ export function EvidenceForm({
                 {v.kind === "text" ? (
                   <div className="ob-field gl-field">
                     <label className="ob-label" htmlFor={`text-${it.id}`}>
-                      Your text
+                      {t["ui.evidence.yourText"]}
                     </label>
                     <textarea id={`text-${it.id}`} className="ob-input" rows={5} value={v.text} aria-invalid={problem ? true : undefined} onChange={(e) => set(it.id, { text: e.target.value })} />
                   </div>
@@ -249,10 +253,10 @@ export function EvidenceForm({
                 {v.kind === "link" ? (
                   <div className="ob-field gl-field">
                     <label className="ob-label" htmlFor={`url-${it.id}`}>
-                      Link
+                      {t["ui.evidence.link"]}
                     </label>
                     <p className="ob-help" id={`url-help-${it.id}`}>
-                      The full address, starting with https://
+                      {t["ui.evidence.linkHelp"]}
                     </p>
                     <input id={`url-${it.id}`} className="ob-input" type="url" inputMode="url" autoComplete="off" value={v.url} aria-describedby={`url-help-${it.id}`} aria-invalid={problem ? true : undefined} onChange={(e) => set(it.id, { url: e.target.value })} />
                   </div>
@@ -261,20 +265,20 @@ export function EvidenceForm({
                 {v.kind === "file" ? (
                   <div className="ob-field gl-field">
                     <label className="ob-label" htmlFor={`file-${it.id}`}>
-                      File
+                      {t["ui.evidence.file"]}
                     </label>
                     <p className="ob-help" id={`file-help-${it.id}`}>
-                      {FILE_TYPES_LABEL}, up to {MAX_FILE_LABEL}. It uploads as soon as you choose it.
+                      {t["ui.evidence.fileHelp"](fileTypesLabel(lang), MAX_FILE_LABEL)}
                     </p>
                     {v.file ? (
                       <div className="gl-filechip">
                         <Paperclip size={20} aria-hidden="true" focusable="false" />
                         <span>
-                          {v.file.name} <span className="ob-secondary">({formatSize(v.file.size)}, uploaded)</span>
+                          {v.file.name} <span className="ob-secondary">{t["ui.evidence.uploaded"](formatSize(v.file.size))}</span>
                         </span>
                         <button type="button" className="ob-btn ob-btn--tertiary" onClick={() => set(it.id, { file: null })}>
                           <X size={20} aria-hidden="true" focusable="false" />
-                          Remove file
+                          {t["ui.evidence.removeFile"]}
                         </button>
                       </div>
                     ) : (
@@ -294,7 +298,7 @@ export function EvidenceForm({
                       />
                     )}
                     <p className="ob-p t-label-meta gl-upload-status" role="status">
-                      {up.state === "uploading" ? `Uploading ${up.name}…` : null}
+                      {up.state === "uploading" ? t["ui.evidence.uploading"](up.name) : null}
                     </p>
                     {up.state === "failed" ? (
                       <div className="gl-upload-failed" role="alert">
@@ -304,10 +308,10 @@ export function EvidenceForm({
                         </p>
                         <div className="ob-card__actions">
                           <button type="button" className="ob-btn ob-btn--secondary" onClick={() => void upload(it.id, up.file)}>
-                            Try again
+                            {t["ui.evidence.tryAgain"]}
                           </button>
                           <button type="button" className="ob-btn ob-btn--tertiary" onClick={() => setUploads((u) => ({ ...u, [it.id]: { state: "idle" } }))}>
-                            Remove
+                            {t["ui.evidence.remove"]}
                           </button>
                         </div>
                       </div>
@@ -323,10 +327,10 @@ export function EvidenceForm({
       {askCommit ? (
         <div className="ob-field gl-field">
           <label className="ob-label" htmlFor="git-commit">
-            Git commit <span className="ob-req">(optional)</span>
+            {t["ui.evidence.gitCommit"]} <span className="ob-req">{t["ui.optional"]}</span>
           </label>
           <p className="ob-help" id="git-commit-help">
-            This lesson asks for a checkpoint. Paste the commit identifier from git log: 7 to 40 letters and numbers.
+            {t["ui.evidence.gitCommitHelp"]}
           </p>
           <input
             id="git-commit"
@@ -347,16 +351,16 @@ export function EvidenceForm({
 
       <div className="gl-evidence__actions">
         <button type="submit" className="ob-btn ob-btn--primary ob-btn--large" disabled={!canSave || busy !== null}>
-          Submit evidence
+          {t["ui.submit.title"]}
         </button>
         <button type="button" className="ob-btn ob-btn--secondary ob-btn--large" disabled={!canSave || busy !== null} aria-busy={busy === "draft" || undefined} onClick={onSaveDraft}>
-          {busy === "draft" ? "Saving draft…" : "Save draft"}
+          {busy === "draft" ? t["ui.evidence.savingDraft"] : t["ui.evidence.saveDraft"]}
         </button>
         <Link className="ob-btn ob-btn--tertiary" href={`/lesson/${slug}/task`}>
-          Return to your task
+          {t["ui.evidence.returnToTask"]}
         </Link>
       </div>
-      {dirty ? <p className="ob-p t-label-meta ob-secondary">You have unsaved changes.</p> : null}
+      {dirty ? <p className="ob-p t-label-meta ob-secondary">{t["ui.evidence.unsaved"]}</p> : null}
 
       <p className="ob-p t-label-meta gl-save" role="status">
         {status?.kind === "saved" ? status.text : null}
@@ -370,20 +374,20 @@ export function EvidenceForm({
         ) : null}
       </p>
 
-      <Dialog open={confirming} onClose={() => setConfirming(false)} title="Submit your evidence?" busy={busy === "submit"}>
-        <p className="ob-p">This saves the following as version {nextVersion}.{nextVersion > 1 ? " Earlier versions are kept." : ""}</p>
+      <Dialog open={confirming} onClose={() => setConfirming(false)} title={t["ui.evidence.confirmTitle"]} busy={busy === "submit"}>
+        <p className="ob-p">{t["ui.evidence.confirmBody"](nextVersion)}{nextVersion > 1 ? t["ui.evidence.earlierKept"] : ""}</p>
         <ul className="gl-bullets">
           {summaryItems.map((s) => (
             <li key={s}>{s}</li>
           ))}
-          {askCommit && commit.trim() ? <li>Git commit: {commit.trim()}</li> : null}
+          {askCommit && commit.trim() ? <li>{t["ui.evidence.commitLine"](commit.trim())}</li> : null}
         </ul>
         <div className="ob-card__actions">
           <button type="button" className="ob-btn ob-btn--primary" aria-busy={busy === "submit" || undefined} disabled={busy === "submit"} onClick={onConfirm}>
-            {busy === "submit" ? "Submitting…" : "Submit evidence"}
+            {busy === "submit" ? t["ui.evidence.submitting"] : t["ui.submit.title"]}
           </button>
           <button type="button" className="ob-btn ob-btn--secondary" disabled={busy === "submit"} onClick={() => setConfirming(false)}>
-            Go back
+            {t["ui.evidence.goBack"]}
           </button>
         </div>
       </Dialog>

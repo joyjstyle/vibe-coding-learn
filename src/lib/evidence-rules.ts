@@ -2,6 +2,9 @@
  * Upload limits and evidence validation, shared by the form's helper text and the server,
  * so what the page says always matches what is enforced.
  */
+import type { Lang } from "./i18n/lang";
+import { messages } from "./i18n/messages";
+
 export const MAX_FILE_BYTES = 10 * 1024 * 1024;
 export const MAX_FILE_LABEL = "10 MB";
 
@@ -20,6 +23,10 @@ export const FILE_TYPES: Record<string, string> = {
 };
 
 export const FILE_TYPES_LABEL = "PNG, JPG, WebP, GIF, PDF, TXT, Markdown, CSV or JSON";
+/** FILE_TYPES_LABEL in the given language. MAX_FILE_LABEL ("10 MB") reads the same in both. */
+export function fileTypesLabel(lang: Lang = "en"): string {
+  return messages[lang]["lib.evidence.fileTypes"];
+}
 export const FILE_ACCEPT = Object.keys(FILE_TYPES).map((e) => `.${e}`).join(",");
 
 export function fileExtension(name: string): string {
@@ -29,11 +36,12 @@ export function fileExtension(name: string): string {
 
 export type FileCheck = { ok: true; type: string } | { ok: false; reason: string };
 
-export function checkFile(name: string, size: number): FileCheck {
+export function checkFile(name: string, size: number, lang: Lang = "en"): FileCheck {
+  const t = messages[lang];
   const type = FILE_TYPES[fileExtension(name)];
-  if (!type) return { ok: false, reason: `${name} is not a file type you can upload. Use ${FILE_TYPES_LABEL}.` };
-  if (size === 0) return { ok: false, reason: `${name} is empty.` };
-  if (size > MAX_FILE_BYTES) return { ok: false, reason: `${name} is larger than ${MAX_FILE_LABEL}.` };
+  if (!type) return { ok: false, reason: t["lib.evidence.notAllowed"](name, fileTypesLabel(lang)) };
+  if (size === 0) return { ok: false, reason: t["lib.evidence.empty"](name) };
+  if (size > MAX_FILE_BYTES) return { ok: false, reason: t["lib.evidence.tooLarge"](name, MAX_FILE_LABEL) };
   return { ok: true, type };
 }
 

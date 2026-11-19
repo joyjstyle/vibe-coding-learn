@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { trapTab } from "@/lib/hooks/trapTab";
 import { returnTarget, trackLastPressed } from "@/lib/hooks/lastPressed";
+import { useT } from "@/lib/i18n/client";
 
 /**
  * A modal drawer from the right, built on the native <dialog>: showModal() contains focus,
@@ -14,6 +15,7 @@ export function Drawer({ open, onClose, title, children }: { open: boolean; onCl
   const ref = useRef<HTMLDialogElement>(null);
   const returnTo = useRef<HTMLElement | null>(null);
   const titleId = useId();
+  const t = useT();
 
   useEffect(() => trackLastPressed(), []);
 
@@ -55,7 +57,7 @@ export function Drawer({ open, onClose, title, children }: { open: boolean; onCl
           </h2>
           <button type="button" className="ob-btn ob-btn--secondary" onClick={onClose}>
             <X size={20} aria-hidden="true" focusable="false" />
-            Close
+            {t["ui.close"]}
           </button>
         </div>
         {children}

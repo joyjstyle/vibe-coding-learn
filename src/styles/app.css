@@ -552,3 +552,10 @@ html[data-text-size="larger"] { font-size: 125%; }
 /* Sign in */
 .gl-signin-card { gap: var(--space-5); }
 .gl-signin { display: flex; flex-direction: column; gap: var(--space-5); }
+
+/* EN/VN language toggle, at the end of each dark bar. */
+.gl-lang { display: inline-flex; align-items: center; border: 1px solid var(--text-muted); border-radius: var(--radius-pill); padding: 2px; gap: 2px; }
+.gl-lang__btn { min-height: calc(var(--height-control) - 6px); min-width: 40px; padding: 0 var(--space-2); border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--on-shell); font: inherit; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; }
+.gl-lang__btn[aria-pressed="true"] { background: var(--on-shell); color: var(--ink); }
+.gl-lang__btn:not([aria-pressed="true"]):hover { text-decoration: underline; text-underline-offset: 3px; }
+.gl-lang[aria-busy="true"] .gl-lang__btn { cursor: progress; }

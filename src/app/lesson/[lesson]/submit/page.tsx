@@ -11,13 +11,15 @@ import { Blocks } from "@/components/content/Blocks";
 import { EvidenceForm, type FormItem, type ItemValue } from "@/components/work/EvidenceForm";
 import { ReviewTag } from "@/components/StatusBadges";
 import { workStore } from "@/lib/platform/stores";
+import { getT } from "@/lib/i18n/server";
 
-export const generateMetadata = lessonMetadata("Submit evidence");
+export const generateMetadata = lessonMetadata("ui.submit.title");
 
 export default async function SubmitPage({ params }: LessonRouteProps) {
   const data = await loadLesson((await params).lesson);
   if (!("canSave" in data)) return <LessonUnavailable access={data.access} />;
   const lesson = data.access.lesson;
+  const t = await getT();
   const intern = await auth.getCurrentIntern();
   const work = intern ? await workStore.get(intern.id) : emptyWork();
   const draft = work.drafts.find((d) => d.lessonId === lesson.id);
@@ -27,7 +29,7 @@ export default async function SubmitPage({ params }: LessonRouteProps) {
 
   const items: FormItem[] = lesson.submission.items.map((it) => {
     const first = it.children[0];
-    return { id: it.id, label: first?.type === "paragraph" ? first.children : [{ type: "text", value: `Evidence item ${it.id.slice(1)}` }] };
+    return { id: it.id, label: first?.type === "paragraph" ? first.children : [{ type: "text", value: t["ui.submit.evidenceItem"](it.id.slice(1)) }] };
   });
   // Prefill from a saved draft, else from the latest version (for resubmitting), else empty.
   const initial: Record<string, ItemValue> = {};
@@ -47,17 +49,17 @@ export default async function SubmitPage({ params }: LessonRouteProps) {
     <div className="gl-submitpage">
       <header className="gl-page-head">
         <p className="ob-p t-label-meta gl-eyebrow">
-          Day {lesson.day} · Lesson {lesson.id}: {lesson.title}
+          {t["ui.dayLessonTitle"](lesson.day, lesson.id, lesson.title)}
         </p>
-        <h1 className="ob-h t-page-heading">Submit evidence</h1>
+        <h1 className="ob-h t-page-heading">{t["ui.submit.title"]}</h1>
         <p className="ob-p ob-secondary">
-          {latest ? `You submitted version ${latest.version}. Submitting again creates version ${latest.version + 1} and keeps the earlier ones.` : "Add text, a link or a file for each item the lesson asks for."}
+          {latest ? t["ui.submit.resubmit"](latest.version) : t["ui.submit.lead"]}
         </p>
       </header>
 
       {lesson.submission.after.length ? (
         <div className="ob-callout ob-callout--dependency">
-          <p className="ob-callout__label ob-p">Before you submit</p>
+          <p className="ob-callout__label ob-p">{t["ui.submit.beforeSubmit"]}</p>
           <div className="gl-prose gl-prose--compact">
             <Blocks blocks={lesson.submission.after} />
           </div>
@@ -79,26 +81,26 @@ export default async function SubmitPage({ params }: LessonRouteProps) {
       {reviewPoint ? (
         <section className="ob-card ob-card--outlined gl-reviewpoint" aria-labelledby="review-point">
           <h2 id="review-point" className="ob-h t-card-title">
-            Review point
+            {t["ui.submit.reviewPoint"]}
           </h2>
           <p className="ob-p gl-inline-status">
-            <span>Your supervisor: {reviewPoint.supervisorDecides}</span>
+            <span>{t["ui.submit.yourSupervisor"](reviewPoint.supervisorDecides)}</span>
             <ReviewTag decision={state} />
           </p>
           {latest ? (
             <>
-              <p className="ob-p">Share a read-only link with your supervisor, then record their decision when they give it to you.</p>
+              <p className="ob-p">{t["ui.submit.shareThenRecord"]}</p>
               <div className="ob-card__actions">
                 <Link className="ob-btn ob-btn--secondary" href={`/work/${lesson.slug}#share`}>
-                  Share with supervisor
+                  {t["ui.submit.share"]}
                 </Link>
                 <Link className="ob-btn ob-btn--secondary" href={`/work/${lesson.slug}#record`}>
-                  Record review outcome
+                  {t["ui.submit.record"]}
                 </Link>
               </div>
             </>
           ) : (
-            <p className="ob-p ob-secondary">Once you submit, you can share a read-only link with your supervisor and record their decision here.</p>
+            <p className="ob-p ob-secondary">{t["ui.submit.onceSubmitted"]}</p>
           )}
         </section>
       ) : null}
