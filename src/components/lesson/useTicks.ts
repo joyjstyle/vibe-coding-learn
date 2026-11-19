@@ -2,15 +2,16 @@
 
 import { useCallback, useRef, useState } from "react";
 import type { ProgressResult } from "@/lib/actions/progress";
+import { useT } from "@/lib/i18n/client";
 
 export type SaveMessage = { kind: "saved" | "error"; text: string } | null;
 
-const ERRORS: Record<Exclude<ProgressResult, { ok: true }>["error"], string> = {
-  not_signed_in: "Your ticks can't be saved because you're not signed in.",
-  not_available: "This lesson isn't open yet, so your ticks can't be saved.",
-  invalid: "We couldn't save that tick. Reload the page, then try again.",
-  save_failed: "We couldn't save your tick. Check your connection, then try again.",
-};
+const ERRORS = {
+  not_signed_in: "ui.task.notSignedIn",
+  not_available: "ui.ticks.notAvailable",
+  invalid: "ui.ticks.invalid",
+  save_failed: "ui.ticks.saveFailed",
+} as const satisfies Record<Exclude<ProgressResult, { ok: true }>["error"], string>;
 
 /**
  * Ticked items for one list (task steps or completion criteria). A tick shows at once;
@@ -20,6 +21,7 @@ export function useTicks(initial: string[], save: (id: string, checked: boolean)
   const [ticked, setTicked] = useState<Set<string>>(() => new Set(initial));
   const [message, setMessage] = useState<SaveMessage>(null);
   const pending = useRef(0);
+  const t = useT();
 
   const toggle = useCallback(
     async (id: string, checked: boolean) => {
@@ -42,7 +44,7 @@ export function useTicks(initial: string[], save: (id: string, checked: boolean)
       }
       pending.current -= 1;
       if (result.ok) {
-        if (pending.current === 0) setMessage({ kind: "saved", text: "Saved" });
+        if (pending.current === 0) setMessage({ kind: "saved", text: t["ui.ticks.saved"] });
       } else {
         setTicked((prev) => {
           if (exclusive) return before;
@@ -51,10 +53,10 @@ export function useTicks(initial: string[], save: (id: string, checked: boolean)
           else next.add(id);
           return next;
         });
-        setMessage({ kind: "error", text: ERRORS[result.error] });
+        setMessage({ kind: "error", text: t[ERRORS[result.error]] });
       }
     },
-    [save, exclusive],
+    [save, exclusive, t],
   );
 
   return { ticked, toggle, message };

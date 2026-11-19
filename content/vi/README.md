@@ -77,3 +77,17 @@ Address the learner as **bạn**, in a friendly, clear, professional tone. Keep 
 | Responsive | Đáp ứng (responsive) |
 | Checkpoint | Mốc lưu |
 | Handover | Bàn giao |
+| Unit (as in "Unit 4") | Học phần |
+| Checkpoint (Git) | mốc lưu |
+| Treatment (clinic) | liệu trình |
+| Escalate | chuyển lên cấp trên |
+| Finding (QA/review) | phát hiện |
+| Defect | lỗi |
+| Copy (website text) | nội dung chữ |
+| Passed / Failed / Not checked | Đạt / Không đạt / Chưa kiểm tra |
+| Reference register | sổ đăng ký tham chiếu |
+| Instruction pack | bộ hướng dẫn |
+| Starter project | dự án khởi đầu |
+| Scope expansion | mở rộng phạm vi |
+| Readiness report | báo cáo mức độ sẵn sàng |
+| Verify / verified | xác minh / đã xác minh |

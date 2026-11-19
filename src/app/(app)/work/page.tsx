@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { reviewPointFor } from "@/lib/config";
-import { lessons } from "@/lib/content/curriculum";
+import { contentFor } from "@/lib/content/curriculum";
+import { getLang, getT } from "@/lib/i18n/server";
 import { auth } from "@/lib/platform/auth";
 import { emptyWork } from "@/lib/platform/work";
 import { getProgrammeView, nextLesson } from "@/lib/programme";
@@ -11,13 +12,16 @@ import { PageHeader } from "@/components/PageHeader";
 import { ReviewTag, SubmissionBadge } from "@/components/StatusBadges";
 import { workStore } from "@/lib/platform/stores";
 
-export const metadata = { title: "My work" };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t["pages.work.title"] };
+}
 
 const FILTERS = [
-  { key: "needs-action", label: "Needs action" },
-  { key: "awaiting", label: "Awaiting review" },
-  { key: "accepted", label: "Accepted" },
-  { key: "all", label: "All" },
+  { key: "needs-action", label: "pages.work.filter.needs-action" },
+  { key: "awaiting", label: "pages.work.filter.awaiting" },
+  { key: "accepted", label: "pages.work.filter.accepted" },
+  { key: "all", label: "pages.work.filter.all" },
 ] as const;
 type FilterKey = (typeof FILTERS)[number]["key"];
 
@@ -28,6 +32,9 @@ const matches = (f: FilterKey, r: Row) =>
 
 export default async function WorkPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
   await connection();
+  const lang = await getLang();
+  const t = await getT();
+  const { lessons } = contentFor(lang);
   const intern = await auth.getCurrentIntern();
   const work = intern ? await workStore.get(intern.id) : emptyWork();
   const rows: Row[] = lessons
@@ -64,13 +71,13 @@ export default async function WorkPage({ searchParams }: { searchParams: Promise
 
   return (
     <>
-      <PageHeader title="My work" lead="Everything you have submitted, and the review decisions you have recorded." />
-      <nav className="gl-subnav" aria-label="Filter submissions">
+      <PageHeader title={t["pages.work.title"]} lead={t["pages.work.lead"]} />
+      <nav className="gl-subnav" aria-label={t["pages.work.filterLabel"]}>
         <ul>
           {FILTERS.map((f) => (
             <li key={f.key}>
               <Link href={`/work?filter=${f.key}`} aria-current={filter === f.key ? "page" : undefined}>
-                {f.label} ({counts[f.key]})
+                {t[f.label]} ({counts[f.key]})
               </Link>
             </li>
           ))}
@@ -78,39 +85,39 @@ export default async function WorkPage({ searchParams }: { searchParams: Promise
       </nav>
 
       {!rows.length ? (
-        <section className="ob-card ob-card--outlined gl-empty" aria-label="No submissions yet">
-          <p className="ob-p">You haven&apos;t submitted any evidence yet. Each lesson ends with Submit evidence, after its task.</p>
+        <section className="ob-card ob-card--outlined gl-empty" aria-label={t["pages.work.noneLabel"]}>
+          <p className="ob-p">{t["pages.work.none"]}</p>
           {firstStep ? (
             <p className="ob-p">
               <Link className="ob-btn ob-btn--primary" href={`/lesson/${firstStep.slug}`}>
-                Go to Lesson {firstStep.id}
+                {t["pages.work.goToLesson"](firstStep.id)}
               </Link>
             </p>
           ) : (
-            <p className="ob-p ob-secondary">Your first lesson opens once your cohort&apos;s start date is confirmed.</p>
+            <p className="ob-p ob-secondary">{t["pages.work.firstOpensUnknown"]}</p>
           )}
         </section>
       ) : !shown.length ? (
-        <p className="ob-p">Nothing here. <Link className="gl-link" href="/work?filter=all">Show all your work</Link>.</p>
+        <p className="ob-p">{t["pages.work.nothingHere"]} <Link className="gl-link" href="/work?filter=all">{t["pages.work.showAll"]}</Link>.</p>
       ) : (
         <ul className="ob-list gl-sublist">
           {shown.map((r) => (
             <li key={r.id} className="ob-sub gl-sub">
               <div className="gl-sub__main">
                 <p className="ob-meta ob-p">
-                  Day {r.day} · Lesson {r.id}
+                  {t["pages.dayLesson"](r.day, r.id)}
                 </p>
                 <p className="ob-p gl-sub__title">{r.title}</p>
                 <p className="ob-sub__meta ob-meta ob-p">
-                  {r.when ? <span>Last submitted {dateTime(r.when)}</span> : <span>Not submitted yet</span>}
-                  {r.versions > 1 ? <span>{r.versions} versions</span> : null}
+                  {r.when ? <span>{t["pages.work.lastSubmitted"](dateTime(r.when, lang))}</span> : <span>{t["pages.work.notSubmitted"]}</span>}
+                  {r.versions > 1 ? <span>{t["pages.work.versions"](r.versions)}</span> : null}
                 </p>
               </div>
               <div className="ob-sub__actions">
                 <SubmissionBadge state={r.versions ? "submitted" : "draft"} />
                 {r.review ? <ReviewTag decision={r.review} /> : null}
-                <Link className="ob-link" href={`/work/${r.slug}`} aria-label={`View submission: Lesson ${r.id}`}>
-                  View submission
+                <Link className="ob-link" href={`/work/${r.slug}`} aria-label={t["pages.viewSubmissionLabel"](r.id)}>
+                  {t["pages.viewSubmission"]}
                 </Link>
               </div>
             </li>

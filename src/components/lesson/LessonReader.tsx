@@ -7,6 +7,7 @@ import type { Lesson } from "@/lib/content/model";
 import { saveSectionVisit, saveStep } from "@/lib/actions/progress";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { formatMinutes } from "@/lib/schedule";
+import { useLang, useT } from "@/lib/i18n/client";
 import { Blocks } from "../content/Blocks";
 import { Inlines } from "../content/Inlines";
 import { useLessonNav } from "./LessonContext";
@@ -46,6 +47,8 @@ function writeScroll(key: string, y: number) {
 
 export function LessonReader({ lesson, lastSection, tickedSteps, canSave, prerequisites }: Props) {
   const router = useRouter();
+  const t = useT();
+  const lang = useLang();
   const { setSection: shareSection, registerSelect } = useLessonNav();
   const numbers = lesson.sections.map((s) => s.number);
   const first = numbers[0]!;
@@ -176,16 +179,16 @@ export function LessonReader({ lesson, lastSection, tickedSteps, canSave, prereq
     <div className="gl-reading">
       <header className="gl-lesson-head">
         <p className="ob-p t-label-meta gl-eyebrow">
-          Day {lesson.day} · Lesson {lesson.id}
+          {t["ui.dayLesson"](lesson.day, lesson.id)}
         </p>
         <h1 className="ob-h t-lesson-title">{lesson.title}</h1>
-        <p className="ob-p ob-secondary">{formatMinutes(lesson.estimatedMinutes)}</p>
+        <p className="ob-p ob-secondary">{formatMinutes(lesson.estimatedMinutes, "minutes", lang)}</p>
       </header>
 
       {current.number === first ? (
         <div className="gl-intro">
           <details className="ob-card ob-card--outlined gl-introcard" open={firstVisit}>
-            <summary className="ob-h t-card-title">What you&apos;ll be able to do</summary>
+            <summary className="ob-h t-card-title">{t["ui.reader.objective"]}</summary>
             <div className="gl-prose gl-prose--compact">
               {lesson.objective.intro.length ? (
                 <p>
@@ -202,19 +205,19 @@ export function LessonReader({ lesson, lastSection, tickedSteps, canSave, prereq
             </div>
           </details>
           <details className="ob-card ob-card--outlined gl-introcard" open={firstVisit}>
-            <summary className="ob-h t-card-title">Before you start</summary>
+            <summary className="ob-h t-card-title">{t["ui.reader.beforeStart"]}</summary>
             <dl className="gl-before">
-              <dt className="t-label-meta">Prerequisites</dt>
+              <dt className="t-label-meta">{t["ui.reader.prerequisites"]}</dt>
               <dd>
                 <Inlines nodes={lesson.prerequisites} />
               </dd>
-              <dt className="t-label-meta">Required materials</dt>
+              <dt className="t-label-meta">{t["ui.reader.materials"]}</dt>
               <dd>
                 <Inlines nodes={lesson.requiredMaterials} />
               </dd>
               {lesson.yourOutput ? (
                 <>
-                  <dt className="t-label-meta">Your output</dt>
+                  <dt className="t-label-meta">{t["ui.reader.output"]}</dt>
                   <dd>
                     <Inlines nodes={lesson.yourOutput} />
                   </dd>
@@ -224,15 +227,15 @@ export function LessonReader({ lesson, lastSection, tickedSteps, canSave, prereq
           </details>
           {prerequisites.some((p) => !p.complete) ? (
             <div className="ob-callout ob-callout--dependency">
-              <p className="ob-callout__label ob-p">Before you continue</p>
-              <p className="ob-p">This lesson builds on lessons you have not marked complete yet:</p>
+              <p className="ob-callout__label ob-p">{t["ui.reader.beforeContinue"]}</p>
+              <p className="ob-p">{t["ui.reader.buildsOn"]}</p>
               <ul className="gl-bullets">
                 {prerequisites
                   .filter((p) => !p.complete)
                   .map((p) => (
                     <li key={p.id}>
                       <Link className="gl-link" href={`/lesson/${p.slug}`}>
-                        Lesson {p.id}: {p.title}
+                        {t["ui.lessonTitle"](p.id, p.title)}
                       </Link>
                     </li>
                   ))}
@@ -252,7 +255,7 @@ export function LessonReader({ lesson, lastSection, tickedSteps, canSave, prereq
         {current.number === last && lesson.furtherReading ? (
           <section className="gl-further" aria-labelledby="further-reading">
             <h3 id="further-reading" className="ob-h t-lesson-subsection">
-              Further reading
+              {t["ui.reader.furtherReading"]}
             </h3>
             <div className="gl-prose">
               <Blocks blocks={lesson.furtherReading.blocks} />
@@ -261,23 +264,23 @@ export function LessonReader({ lesson, lastSection, tickedSteps, canSave, prereq
         ) : null}
       </article>
 
-      <nav className="gl-secnav" aria-label="Sections">
+      <nav className="gl-secnav" aria-label={t["ui.reader.sections"]}>
         {prev ? (
           <a className="ob-btn ob-btn--secondary ob-btn--large" href={`${base}#section-${prev.number}`} onClick={(e) => (e.preventDefault(), goTo(prev.number))}>
-            Back
+            {t["ui.reader.back"]}
           </a>
         ) : (
           <Link className="ob-btn ob-btn--secondary ob-btn--large" href={`/day/${lesson.day}`}>
-            Back to Day {lesson.day}
+            {t["ui.reader.backToDay"](lesson.day)}
           </Link>
         )}
         {next ? (
           <a className="ob-btn ob-btn--primary ob-btn--large" href={`${base}#section-${next.number}`} onClick={(e) => (e.preventDefault(), goTo(next.number))}>
-            Next section
+            {t["ui.reader.nextSection"]}
           </a>
         ) : (
           <Link className="ob-btn ob-btn--primary ob-btn--large" href={`${base}/task`}>
-            Go to your task
+            {t["ui.reader.goToTask"]}
           </Link>
         )}
       </nav>
@@ -290,20 +293,20 @@ export function LessonReader({ lesson, lastSection, tickedSteps, canSave, prereq
 
   return (
     <div className="gl-lesson">
-      <aside className="gl-lesson__rail" aria-label="Outline">
+      <aside className="gl-lesson__rail" aria-label={t["ui.outline"]}>
         <OutlineNav />
       </aside>
 
       {tabbed ? (
         <div className="gl-lesson__tabbed">
-          <div role="tablist" aria-label="Lesson and task" className="gl-tabs">
+          <div role="tablist" aria-label={t["ui.reader.tabs"]} className="gl-tabs">
             <button type="button" role="tab" id="tab-lesson" aria-controls="panel-lesson" aria-selected={tab === "lesson"} tabIndex={tab === "lesson" ? 0 : -1} onClick={() => setTab("lesson")} onKeyDown={onTabKey}>
-              Lesson
+              {t["ui.reader.tabLesson"]}
             </button>
             <button type="button" role="tab" id="tab-task" aria-controls="panel-task" aria-selected={tab === "task"} tabIndex={tab === "task" ? 0 : -1} onClick={() => setTab("task")} onKeyDown={onTabKey}>
-              Your task
+              {t["ui.task.yourTask"]}
               <span className="gl-tabs__count">
-                {doneCount} of {lesson.task.steps.length} steps done
+                {t["ui.task.stepsDone"](doneCount, lesson.task.steps.length)}
               </span>
             </button>
           </div>
@@ -317,7 +320,7 @@ export function LessonReader({ lesson, lastSection, tickedSteps, canSave, prereq
       ) : (
         <>
           <div className="gl-lesson__main">{reading}</div>
-          <aside className="gl-lesson__task" aria-label="Your task">
+          <aside className="gl-lesson__task" aria-label={t["ui.task.yourTask"]}>
             {task}
           </aside>
         </>

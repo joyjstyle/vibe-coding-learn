@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/lib/i18n/client";
 
 export function SignOut() {
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return (
     <section className="ob-card ob-card--outlined gl-settings__group" aria-labelledby="set-account">
       <h2 id="set-account" className="ob-h t-card-title">
-        Account
+        {t["pages.settings.account"]}
       </h2>
-      <p className="ob-p ob-secondary">Your progress is saved to your account, so you can sign in again on any computer.</p>
+      <p className="ob-p ob-secondary">{t["pages.settings.accountText"]}</p>
       <div>
         <button
           type="button"
@@ -25,12 +27,12 @@ export function SignOut() {
               if (!res.ok) throw new Error();
               window.location.assign("/sign-in");
             } catch {
-              setError("We couldn't sign you out. Check your connection, then try again.");
+              setError(t["pages.settings.signOutError"]);
               setBusy(false);
             }
           }}
         >
-          {busy ? "Signing out…" : "Sign out"}
+          {busy ? t["pages.settings.signingOut"] : t["pages.settings.signOut"]}
         </button>
       </div>
       <p className="ob-p ob-error-text gl-save--error" role="alert">

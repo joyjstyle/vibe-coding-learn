@@ -10,7 +10,7 @@ Kết thúc bài học này, bạn có thể:
 - Giới hạn việc thu thập và xử lý dữ liệu cá nhân trong phạm vi đã được phê duyệt.
 - Rà soát các gói phụ thuộc (dependency) trước khi thêm hoặc cập nhật, và hiểu kết quả của `npm audit`.
 
-**Điều kiện tiên quyết:** Hoàn thành Đơn vị 8 và có sẵn hồ sơ QA cùng quyết định duyệt của hồ sơ đó.
+**Điều kiện tiên quyết:** Hoàn thành Học phần 8 và có sẵn hồ sơ QA cùng quyết định duyệt của hồ sơ đó.
 
 **Tài liệu cần chuẩn bị:** Hướng dẫn dự án, tài liệu kiến trúc, đặc tả tích hợp, đặc tả biểu mẫu từ Bài 7.1, `package.json`, tệp khóa (lock file) và mọi tài liệu cấu hình hiện có.
 

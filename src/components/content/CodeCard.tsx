@@ -3,23 +3,25 @@
 import { useEffect, useRef, useState } from "react";
 import { Code, FileText, MessageSquareText, SquareTerminal, type LucideIcon } from "lucide-react";
 import type { CodeBlock } from "@/lib/content/model";
+import { useT } from "@/lib/i18n/client";
+import type { Messages } from "@/lib/i18n/messages";
 
 const LANG_NAMES: Record<string, string> = { tsx: "TSX", ts: "TypeScript", css: "CSS", html: "HTML" };
 
 type CardKind = { label: string; icon: LucideIcon; copy: string; noun: string; afterPlaceholder?: string };
 
-function kindOf(block: CodeBlock): CardKind {
+function kindOf(block: CodeBlock, t: Messages): CardKind {
   switch (block.kind) {
     case "prompt":
-      return { label: "Paste into Claude Code", icon: MessageSquareText, copy: "Copy prompt", noun: "prompt", afterPlaceholder: "Replace the highlighted parts before sending" };
+      return { label: t["ui.code.prompt.label"], icon: MessageSquareText, copy: t["ui.code.prompt.copy"], noun: t["ui.code.prompt.noun"], afterPlaceholder: t["ui.code.afterSending"] };
     case "command":
-      return { label: "Run in your terminal", icon: SquareTerminal, copy: "Copy command", noun: "command", afterPlaceholder: "Replace the highlighted parts before running" };
+      return { label: t["ui.code.command.label"], icon: SquareTerminal, copy: t["ui.code.command.copy"], noun: t["ui.code.command.noun"], afterPlaceholder: t["ui.code.afterRunning"] };
     case "template":
-      return { label: "Template to copy", icon: FileText, copy: "Copy template", noun: "template", afterPlaceholder: "Replace the highlighted parts before sending" };
+      return { label: t["ui.code.template.label"], icon: FileText, copy: t["ui.code.template.copy"], noun: t["ui.code.template.noun"], afterPlaceholder: t["ui.code.afterSending"] };
     case "example":
-      return { label: `${LANG_NAMES[block.lang ?? ""] ?? block.lang} example`, icon: Code, copy: "Copy code", noun: "code" };
+      return { label: t["ui.code.example.label"](LANG_NAMES[block.lang ?? ""] ?? block.lang ?? ""), icon: Code, copy: t["ui.code.copy"], noun: t["ui.code.noun"] };
     default:
-      return { label: "Code", icon: Code, copy: "Copy code", noun: "code" };
+      return { label: t["ui.code.label"], icon: Code, copy: t["ui.code.copy"], noun: t["ui.code.noun"] };
   }
 }
 
@@ -31,7 +33,8 @@ type CopyState = "idle" | "copied" | "failed";
  * otherwise the learner is told to select the text, which always stays selectable.
  */
 export function CodeCard({ block }: { block: CodeBlock }) {
-  const kind = kindOf(block);
+  const t = useT();
+  const kind = kindOf(block, t);
   const Icon = kind.icon;
   const [state, setState] = useState<CopyState>("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -62,10 +65,10 @@ export function CodeCard({ block }: { block: CodeBlock }) {
             {kind.copy}
           </button>
         </div>
-        {block.hasPlaceholders ? <p className="ob-p gl-code__note">Highlighted parts are placeholders to replace.</p> : null}
+        {block.hasPlaceholders ? <p className="ob-p gl-code__note">{t["ui.code.placeholders"]}</p> : null}
         <pre
           className={wraps ? "gl-code__pre gl-code__pre--wrap" : "gl-code__pre"}
-          {...(wraps ? {} : { tabIndex: 0, role: "region", "aria-label": `${kind.label}, scrollable` })}
+          {...(wraps ? {} : { tabIndex: 0, role: "region", "aria-label": t["ui.code.scrollable"](kind.label) })}
         >
           <code>
             {block.segments
@@ -75,8 +78,8 @@ export function CodeCard({ block }: { block: CodeBlock }) {
         </pre>
       </div>
       <p className="ob-p t-label-meta gl-code__status" role="status">
-        {state === "copied" ? (block.hasPlaceholders && kind.afterPlaceholder ? `Copied. ${kind.afterPlaceholder}.` : "Copied") : null}
-        {state === "failed" ? `Copy didn't work. Select the ${kind.noun} and copy it yourself.` : null}
+        {state === "copied" ? (block.hasPlaceholders && kind.afterPlaceholder ? t["ui.code.copiedThen"](kind.afterPlaceholder) : t["ui.copied"]) : null}
+        {state === "failed" ? t["ui.code.copyFailed"](kind.noun) : null}
       </p>
     </figure>
   );

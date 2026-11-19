@@ -10,13 +10,13 @@ Khi kết thúc bài học này, bạn có thể:
 - Ghi lại các mâu thuẫn và trạng thái còn thiếu mà không thiết kế lại website.
 - Chuẩn bị một bộ tham chiếu gốc (reference baseline) để Claude có thể làm việc dựa trên đó.
 
-**Điều kiện tiên quyết:** Hoàn thành Ngày 2 và đã ghi lại quyết định duyệt của ngày đó.
+**Điều kiện tiên quyết:** Hoàn thành Học phần 2 và đã ghi lại quyết định duyệt của học phần đó.
 
 **Tài liệu cần chuẩn bị:** Các khung thiết kế được cung cấp, hướng dẫn phong cách, nội dung đã duyệt, IA và mọi đặc tả tương tác.
 
 ## 1. Xác định mỗi nguồn quyết định điều gì
 
-Ngày 2 đã tạo ra kế hoạch cho website. Ngày 3 chuẩn bị các hướng dẫn để xây dựng nó. Trước khi viết những hướng dẫn đó, bạn cần biết những nguồn đã duyệt nào mô tả website hoàn chỉnh, và mỗi nguồn chịu trách nhiệm về điều gì.
+Học phần 2 đã tạo ra kế hoạch cho website. Học phần 3 chuẩn bị các hướng dẫn để xây dựng nó. Trước khi viết những hướng dẫn đó, bạn cần biết những nguồn đã duyệt nào mô tả website hoàn chỉnh, và mỗi nguồn chịu trách nhiệm về điều gì.
 
 | Nguồn | Thường quyết định điều gì |
 |---|---|

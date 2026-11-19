@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { getLesson, getLessonBySlug, lessons } from "@/lib/content/curriculum";
 import { getProgrammeView } from "@/lib/programme";
+import { getLang } from "@/lib/i18n/server";
 import { AppFrame } from "@/components/AppFrame";
 import { LessonBar } from "@/components/LessonBar";
 import { LessonNavProvider } from "@/components/lesson/LessonContext";
@@ -17,13 +18,14 @@ export function generateStaticParams() {
 }
 
 export default async function LessonLayout({ children, params }: { children: ReactNode; params: Promise<{ lesson: string }> }) {
-  const summary = getLessonBySlug((await params).lesson);
+  const lang = await getLang();
+  const summary = getLessonBySlug((await params).lesson, lang);
   if (!summary) notFound();
   await connection();
   await requireIntern();
   const programme = await getProgrammeView();
   const day = programme.days.find((d) => d.n === summary.day)!;
-  const lesson = getLesson(summary.id);
+  const lesson = getLesson(summary.id, lang) ?? getLesson(summary.id);
   const outline: OutlineData = {
     lessonId: summary.id,
     slug: summary.slug,

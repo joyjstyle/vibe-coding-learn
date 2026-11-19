@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { auth } from "@/lib/platform/auth";
 import { type LessonProgress } from "@/lib/platform/progress";
+import { getT } from "@/lib/i18n/server";
 import { getLessonAccess } from "@/lib/lesson-access";
 import { chooseCriterion, emptyProgress, markComplete, recordVisit, setCriterion, setStep } from "@/lib/progress-rules";
 import { revalidatePath } from "next/cache";
@@ -60,17 +61,18 @@ export type CompleteResult = { ok: true } | { ok: false; error: string };
  * available). Checked again here, whatever the page showed. Supervisor review plays no part.
  */
 export async function markLessonComplete(lessonId: string): Promise<CompleteResult> {
-  if (!LessonId.safeParse(lessonId).success) return { ok: false, error: "This lesson does not exist." };
+  const t = await getT();
+  if (!LessonId.safeParse(lessonId).success) return { ok: false, error: t["lib.error.lessonMissing"] };
   const intern = await auth.getCurrentIntern();
-  if (!intern) return { ok: false, error: "Your progress can't be saved because you're not signed in." };
+  if (!intern) return { ok: false, error: t["lib.progress.notSignedIn"] };
   const access = await getLessonAccess(lessonId);
-  if (access.kind !== "open") return { ok: false, error: "This lesson isn't open yet." };
+  if (access.kind !== "open") return { ok: false, error: t["lib.error.lessonNotOpen"] };
   try {
     const work = await workStore.get(intern.id);
     const current = await progressStore.get(intern.id, lessonId);
     const check = await checkState(lessonId, current);
     const state = completion(access.lesson, current, Boolean(latestSubmission(work, lessonId)), check);
-    if (!state.ready) return { ok: false, error: "Some conditions are not met yet. Check the list above." };
+    if (!state.ready) return { ok: false, error: t["lib.progress.conditionsNotMet"] };
     await progressStore.update(intern.id, lessonId, (p) => markComplete(p ?? emptyProgress(lessonId), new Date().toISOString(), check === "passed" ? "passed" : "unavailable"));
     const slug = lessonIdToSlug(lessonId);
     revalidatePath(`/lesson/${slug}`, "layout");
@@ -78,6 +80,6 @@ export async function markLessonComplete(lessonId: string): Promise<CompleteResu
     revalidatePath(`/day/${access.lesson.day}`);
     return { ok: true };
   } catch {
-    return { ok: false, error: "We couldn't save your changes. Check your connection, then try again." };
+    return { ok: false, error: t["lib.error.saveFailed"] };
   }
 }

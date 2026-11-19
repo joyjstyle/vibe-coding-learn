@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { HelpData } from "@/lib/help-data";
+import { useT } from "@/lib/i18n/client";
 import { Drawer } from "../Drawer";
 import { HelpContent } from "./HelpContent";
 
@@ -18,10 +19,11 @@ export function useHelp(): HelpCtx {
 export function HelpProvider({ data, children }: { data: HelpData; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const value = useMemo(() => ({ open, setOpen }), [open]);
+  const t = useT();
   return (
     <Ctx.Provider value={value}>
       {children}
-      <Drawer open={open} onClose={() => setOpen(false)} title="Help">
+      <Drawer open={open} onClose={() => setOpen(false)} title={t["ui.help"]}>
         <HelpContent data={data} onNavigate={() => setOpen(false)} />
       </Drawer>
     </Ctx.Provider>

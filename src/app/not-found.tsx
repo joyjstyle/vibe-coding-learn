@@ -1,12 +1,19 @@
 import Link from "next/link";
-import { platform } from "@/lib/content/curriculum";
+import { contentFor } from "@/lib/content/curriculum";
+import { getLang, getT } from "@/lib/i18n/server";
 import { AppFrame } from "@/components/AppFrame";
 import { LangToggle } from "@/components/LangToggle";
 import { PageHeader } from "@/components/PageHeader";
 
-export const metadata = { title: "Page not found" };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t["pages.notFoundTitle"] };
+}
 
-export default function NotFound() {
+export default async function NotFound() {
+  const lang = await getLang();
+  const t = await getT();
+  const { platform } = contentFor(lang);
   return (
     <AppFrame
       bar={
@@ -18,10 +25,10 @@ export default function NotFound() {
         </header>
       }
     >
-      <PageHeader title="Page not found" lead="This address does not match a page in Genie Lab. Check the link, or go to Home." />
+      <PageHeader title={t["pages.notFoundTitle"]} lead={t["pages.notFound.lead"]} />
       <p className="ob-p">
         <Link className="ob-btn ob-btn--primary" href="/home">
-          Go to Home
+          {t["pages.goHome"]}
         </Link>
       </p>
     </AppFrame>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { useT } from "@/lib/i18n/client";
 import { Avatar } from "./Avatar";
 import { Tooltip } from "./Tooltip";
 
@@ -18,6 +19,7 @@ export function AccountMenu({ initials, name }: { initials: string | null; name:
   const buttonRef = useRef<HTMLButtonElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const t = useT();
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -42,13 +44,13 @@ export function AccountMenu({ initials, name }: { initials: string | null; name:
 
   return (
     <div className="gl-account" ref={rootRef}>
-      <Tooltip label="Account menu" align="end" suppressed={open}>
+      <Tooltip label={t["ui.account.menu"]} align="end" suppressed={open}>
         <button
           ref={buttonRef}
           type="button"
           className="gl-account__button"
           // The visible initials are part of the name (WCAG 2.5.3, label in name).
-          aria-label={initials ? `Account menu, ${initials}` : "Account menu"}
+          aria-label={initials ? t["ui.account.menuWithInitials"](initials) : t["ui.account.menu"]}
           aria-expanded={open}
           aria-controls={panelId}
           onClick={() => setOpen((v) => !v)}
@@ -57,11 +59,11 @@ export function AccountMenu({ initials, name }: { initials: string | null; name:
         </button>
       </Tooltip>
       <div id={panelId} className="gl-account__panel" hidden={!open}>
-        <p className="ob-p t-label-meta gl-account__who">{name ? `Signed in as ${name}` : "Your name is not set"}</p>
+        <p className="ob-p t-label-meta gl-account__who">{name ? t["ui.account.signedInAs"](name) : t["ui.account.noName"]}</p>
         <ul className="gl-account__list">
           <li>
             <Link href="/settings" aria-current={pathname === "/settings" ? "page" : undefined}>
-              Settings
+              {t["ui.settings"]}
             </Link>
           </li>
         </ul>
