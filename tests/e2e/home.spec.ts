@@ -19,7 +19,7 @@ test.describe.serial("first visit, Home and Settings", () => {
   test("the first visit opens the four-step Welcome tour", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/welcome$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Welcome to Genie Lab");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Welcome to VibeCode Academy");
     await expect(page.getByText("Clinic Genie Vibe Coding Intern Platform")).toBeVisible();
     await expect(page.getByText("Step 1 of 4")).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Welcome tour" }).getByRole("link", { name: "What you will build" })).toHaveAttribute("aria-current", "step");
@@ -186,7 +186,7 @@ test.describe("Help", () => {
   test("/help is the same help as its own page, with h2 sections", async ({ page }) => {
     await page.goto("/help");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Help");
-    await expect(page.getByRole("heading", { level: 2 })).toHaveText(["Search the Toolkit", "Where am I?", "Statuses explained", "Common setup problems", "Contact your supervisor", "New to Genie Lab?"]);
+    await expect(page.getByRole("heading", { level: 2 })).toHaveText(["Search the Toolkit", "Where am I?", "Statuses explained", "Common setup problems", "Contact your supervisor", "New to VibeCode Academy?"]);
   });
 });
 

@@ -1,10 +1,10 @@
-# Genie Lab: Clinic Genie Vibe Coding Intern Platform
+# VibeCode Academy: Clinic Genie Vibe Coding Intern Platform
 
 Locked lesson content for the platform.
 
 Status: Approved and locked by the curriculum owner on 13 November 2026, with Lesson 3.3 approved and locked on 15 November 2026. Lesson 1.2 was revised for a VS Code workspace and approved and locked on 15 November 2026. Lessons 1.3, 1.4 and 9.4 were revised the same day to match the VS Code workflow and await approval; the other 37 lessons are locked.
 
-This package holds the intern-facing lesson content for Genie Lab, the Clinic Genie Vibe Coding Intern Platform. Interns build a website for Saffron Wellness Clinic, a fictional practice client. Language is UK English. All code examples use TypeScript and TSX.
+This package holds the intern-facing lesson content for VibeCode Academy, the Clinic Genie Vibe Coding Intern Platform. Interns build a website for Saffron Wellness Clinic, a fictional practice client. Language is UK English. All code examples use TypeScript and TSX.
 
 ## What is in the package
 

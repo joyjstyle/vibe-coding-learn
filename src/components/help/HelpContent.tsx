@@ -38,14 +38,14 @@ export function HelpContent({ data, onNavigate, headingLevel = 3 }: { data: Help
   function locationText() {
     const url = typeof window === "undefined" ? "" : window.location.href;
     if (onLesson) {
-      const parts = [`Genie Lab · ${t["ui.dayLessonTitle"](onLesson.day, onLesson.lessonId, onLesson.title)}`];
+      const parts = [`VibeCode Academy · ${t["ui.dayLessonTitle"](onLesson.day, onLesson.lessonId, onLesson.title)}`];
       if (onLesson.section && sectionTitle) parts.push(t["ui.help.locSection"](onLesson.section, sectionTitle));
       else if (pathname.endsWith("/task")) parts.push(t["ui.task.yourTask"]);
       else if (pathname.endsWith("/submit")) parts.push(t["ui.submit.title"]);
       else if (pathname.endsWith("/check")) parts.push(t["ui.check.title"]);
       return `${parts.join(" · ")}\n${url}`;
     }
-    return `Genie Lab · ${typeof document === "undefined" ? "" : document.title}\n${url}`;
+    return `VibeCode Academy · ${typeof document === "undefined" ? "" : document.title}\n${url}`;
   }
 
   async function search() {

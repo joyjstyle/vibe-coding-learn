@@ -2,7 +2,7 @@
   "name": "genie-lab",
   "version": "0.1.0",
   "private": true,
-  "description": "Genie Lab: Clinic Genie Vibe Coding Intern Platform",
+  "description": "VibeCode Academy: Clinic Genie Vibe Coding Intern Platform",
   "type": "module",
   "engines": {
     "node": ">=22.18"

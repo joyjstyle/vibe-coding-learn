@@ -318,7 +318,7 @@ const en = {
   "ui.help.copyLesson": "Copy lesson and section",
   "ui.help.copyPage": "Copy this page",
   "ui.help.copyFailed": "Copy didn't work. Select the address in your browser and copy it yourself.",
-  "ui.help.newTitle": "New to Genie Lab?",
+  "ui.help.newTitle": "New to VibeCode Academy?",
   "ui.help.replayTour": "Replay the welcome tour",
   "ui.help.locSection": (n: number, title: string) => `Section ${n}: ${title}`,
 };
@@ -638,7 +638,7 @@ const vi: typeof en = {
   "ui.help.copyLesson": "Sao chép bài học và phần",
   "ui.help.copyPage": "Sao chép trang này",
   "ui.help.copyFailed": "Không sao chép được. Hãy chọn địa chỉ trong trình duyệt và tự sao chép.",
-  "ui.help.newTitle": "Mới dùng Genie Lab?",
+  "ui.help.newTitle": "Mới dùng VibeCode Academy?",
   "ui.help.replayTour": "Xem lại hướng dẫn chào mừng",
   "ui.help.locSection": (n, title) => `Phần ${n}: ${title}`,
 };

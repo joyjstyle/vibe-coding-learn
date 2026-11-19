@@ -222,7 +222,7 @@ describe("a lesson whose file is missing", () => {
     writeFileSync(
       join(dir, "curriculum.json"),
       JSON.stringify({
-        platform_name: "Genie Lab",
+        platform_name: "VibeCode Academy",
         platform_description: "Fixture",
         units: [
           {

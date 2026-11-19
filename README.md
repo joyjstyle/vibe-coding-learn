@@ -1,4 +1,4 @@
-# Genie Lab
+# VibeCode Academy
 
 Clinic Genie Vibe Coding Intern Platform: a learning platform where design and vibe coding interns follow a fixed 10-day curriculum of 40 lessons, reading on the platform and doing the work in their own terminal with Claude Code.
 
