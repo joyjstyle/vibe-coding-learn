@@ -2,7 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { platform } from "@/lib/content/curriculum";
-import { auth } from "@/lib/platform/auth";
+import { auth, isLoginEnabled } from "@/lib/platform/auth";
 import { isDatabaseMode } from "@/lib/platform/db";
 import { safeNext } from "@/lib/safe-next";
 import { AppFrame } from "@/components/AppFrame";
@@ -15,6 +15,7 @@ export const metadata = { title: "Sign in", robots: { index: false, follow: fals
 export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   await connection();
   const next = safeNext((await searchParams).next);
+  if (isDatabaseMode() && !isLoginEnabled()) redirect(next);
   if (await auth.getCurrentIntern()) redirect(next);
   return (
     <AppFrame

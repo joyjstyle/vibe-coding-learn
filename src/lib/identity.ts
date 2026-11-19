@@ -1,6 +1,6 @@
 /** Who is signed in, and how they want things shown. Server-side only. */
 import { redirect } from "next/navigation";
-import { auth, initials, type Intern } from "./platform/auth";
+import { auth, initials, isLoginEnabled, type Intern } from "./platform/auth";
 import { isDatabaseMode } from "./platform/db";
 import { defaultSettings, type Settings } from "./platform/settings";
 import { settingsStore } from "./platform/stores";
@@ -17,7 +17,7 @@ export async function getIdentity(): Promise<Identity> {
 
 /** In database mode every intern page needs a signed-in student. */
 export async function requireIntern(): Promise<void> {
-  if (!isDatabaseMode()) return;
+  if (!isDatabaseMode() || !isLoginEnabled()) return;
   if (await auth.getCurrentIntern()) return;
   const { headers } = await import("next/headers");
   const path = (await headers()).get("x-genie-path") ?? "/";

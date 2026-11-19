@@ -8,11 +8,12 @@ const dates = ["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-19", "2026-11-
 const rec = (lessonId: string, status: LessonProgress["status"]): [string, LessonProgress] => [lessonId, { lessonId, status, lastSection: null, tickedSteps: [], tickedCriteria: [], completedAt: null }];
 
 describe("programme view", () => {
-  it("locks every day while no start date is set", () => {
+  it("opens only Day 1 while no start date is set", () => {
     const v = buildProgrammeView("2026-11-18", null, new Map());
     expect(v.scheduleSet).toBe(false);
-    expect(v.days.every((d) => d.access === "locked" && d.opensLabel === null)).toBe(true);
-    expect(v.currentDay).toBeNull();
+    expect(v.days[0]!.access).toBe("open");
+    expect(v.days.slice(1).every((d) => d.access === "locked" && d.opensLabel === null)).toBe(true);
+    expect(v.currentDay).toBe(1);
     expect(v.lessonCount).toBe(lessons.length);
   });
 

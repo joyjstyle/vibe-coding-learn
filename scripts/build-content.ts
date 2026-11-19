@@ -17,8 +17,12 @@ export function lessonSlug(id: string): string {
   return id.replace(".", "-");
 }
 
-/** Builds the model from a content folder holding curriculum.json and the lesson files it lists. */
-export function buildContentModel(contentDir: string): ContentModel {
+/**
+ * Builds the model from a content folder holding curriculum.json and the lesson files it lists.
+ * With `fallback` (the English model), a lesson whose file is missing here uses the English
+ * lesson instead of becoming "Coming soon". The Vietnamese build (content/vi) uses this.
+ */
+export function buildContentModel(contentDir: string, fallback?: ContentModel): ContentModel {
   const curriculum = CurriculumSchema.parse(JSON.parse(readFileSync(join(contentDir, "curriculum.json"), "utf8")));
   const lessons: Record<string, Lesson> = {};
   const seen = new Set<string>();
@@ -33,7 +37,14 @@ export function buildContentModel(contentDir: string): ContentModel {
           seen.add(ref.id);
           const meta = { id: ref.id, slug: lessonSlug(ref.id), title: ref.title, day: unit.day, order: ref.order, estimatedMinutes: ref.estimated_minutes };
           const path = join(contentDir, ref.file);
-          if (!existsSync(path)) return { ...meta, available: false, objectiveItems: [], requiredMaterials: [] };
+          if (!existsSync(path)) {
+            const en = fallback?.lessons[ref.id];
+            if (en) {
+              lessons[ref.id] = en;
+              return { ...meta, available: true, objectiveItems: en.objective.items, requiredMaterials: en.requiredMaterials };
+            }
+            return { ...meta, available: false, objectiveItems: [], requiredMaterials: [] };
+          }
           const lesson = parseLesson(readFileSync(path, "utf8"), meta);
           if (lesson.title !== ref.title) throw new Error(`Lesson ${ref.id}: the file's title "${lesson.title}" differs from curriculum.json "${ref.title}"`);
           lessons[ref.id] = lesson;
@@ -69,6 +80,17 @@ export function validateKnowledgeChecks(dir: string, lessonIds: Set<string>): nu
   return count;
 }
 
+/** The Vietnamese programme must match the English one: same days, lessons, order and minutes. */
+export function checkSameProgramme(en: ContentModel, vi: ContentModel) {
+  const shape = (m: ContentModel) => JSON.stringify(m.days.map((d) => [d.n, d.estimatedMinutes, d.lessons.map((l) => [l.id, l.slug, l.order, l.estimatedMinutes])]));
+  if (shape(en) !== shape(vi)) throw new Error("content/vi/curriculum.json does not match content/curriculum.json (days, lesson ids, order or minutes differ)");
+  for (const [id, l] of Object.entries(vi.lessons)) {
+    const e = en.lessons[id]!;
+    const counts = (x: typeof l) => [x.sections.length, x.task.steps.length, x.submission.items.length, x.criteria.items.length, x.knowledgeCheck.questions.length].join(",");
+    if (counts(l) !== counts(e)) throw new Error(`Lesson ${id}: the Vietnamese file has a different structure from the English one (sections, steps, evidence, criteria, questions: ${counts(l)} vs ${counts(e)})`);
+  }
+}
+
 function main() {
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
   const model = buildContentModel(join(root, "content"));
@@ -78,6 +100,14 @@ function main() {
   const available = model.days.flatMap((d) => d.lessons).filter((l) => l.available).length;
   const total = model.days.flatMap((d) => d.lessons).length;
   console.log(`Content model written to src/generated/content.json: ${model.days.length} days, ${available} of ${total} lessons available.`);
+
+  // Vietnamese: same programme, translated titles and lessons; untranslated lessons stay English.
+  const viDir = join(root, "content/vi");
+  const vi = existsSync(join(viDir, "curriculum.json")) ? buildContentModel(viDir, model) : model;
+  checkSameProgramme(model, vi);
+  writeFileSync(join(out, "content.vi.json"), JSON.stringify(vi));
+  const translated = existsSync(join(viDir, "lessons")) ? readdirSync(join(viDir, "lessons")).filter((f) => f.endsWith(".md")).length : 0;
+  console.log(`Vietnamese content written to src/generated/content.vi.json: ${translated} of ${total} lessons translated.`);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main();

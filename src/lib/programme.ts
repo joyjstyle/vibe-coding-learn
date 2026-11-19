@@ -2,7 +2,8 @@
  * What the Syllabus, Day and (later) Home pages show: content joined with the calendar
  * and the intern's saved progress. Every number comes from content or progress data.
  */
-import { days } from "./content/curriculum";
+import { contentFor } from "./content/curriculum";
+import type { Lang } from "./i18n/lang";
 import type { LessonSummary } from "./content/model";
 import { effectiveSchedule, reviewPointFor, type ReviewPoint } from "./config";
 import { auth } from "./platform/auth";
@@ -42,12 +43,14 @@ export type ProgrammeView = {
   currentDay: number | null;
 };
 
-export function buildProgrammeView(today: string, openDates: string[] | null, progress: Map<string, LessonProgress>, work: Work = emptyWork()): ProgrammeView {
+export function buildProgrammeView(today: string, openDates: string[] | null, progress: Map<string, LessonProgress>, work: Work = emptyWork(), lang: Lang = "en"): ProgrammeView {
+  const { days } = contentFor(lang);
   const dayViews = days.map((d, i): DayView => {
     const openDate = openDates?.[i] ?? null;
     const progressOf = (id: string) => progress.get(id)?.status;
     const allComplete = d.lessons.every((l) => l.available && progressOf(l.id) === "complete");
-    const access = dayAccess(openDate, today, allComplete);
+    // Day 1 is always open, with or without a start date.
+    const access = i === 0 ? dayAccess(today, today, allComplete) : dayAccess(openDate, today, allComplete);
     const lessons = d.lessons.map((l) => {
       const reviewPoint = reviewPointFor(l.id) ?? null;
       return { ...l, status: lessonStatus(access, l.available ? progressOf(l.id) : undefined), reviewPoint, review: reviewPoint ? reviewState(work, l.id) : null };
@@ -58,7 +61,7 @@ export function buildProgrammeView(today: string, openDates: string[] | null, pr
       estimatedMinutes: d.estimatedMinutes,
       access,
       openDate,
-      opensLabel: access === "locked" && openDate ? formatOpenDate(openDate, today) : null,
+      opensLabel: access === "locked" && openDate ? formatOpenDate(openDate, today, lang) : null,
       lessons,
       completeCount: lessons.filter((l) => l.status === "complete").length,
     };
@@ -75,11 +78,13 @@ export function buildProgrammeView(today: string, openDates: string[] | null, pr
 }
 
 export async function getProgrammeView(): Promise<ProgrammeView> {
+  const { getLang } = await import("./i18n/server");
+  const lang = await getLang();
   const { cohort, today } = effectiveSchedule();
   const intern = await auth.getCurrentIntern();
   const progress = intern ? await progressStore.list(intern.id) : new Map<string, LessonProgress>();
   const work = intern ? await workStore.get(intern.id) : emptyWork();
-  return buildProgrammeView(today, dayOpenDates(cohort, days.length), progress, work);
+  return buildProgrammeView(today, dayOpenDates(cohort, contentFor(lang).days.length), progress, work, lang);
 }
 
 /** The first available lesson in the day that is not complete, for the day's primary action. */

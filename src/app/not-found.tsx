@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { platform } from "@/lib/content/curriculum";
 import { AppFrame } from "@/components/AppFrame";
+import { LangToggle } from "@/components/LangToggle";
 import { PageHeader } from "@/components/PageHeader";
 
 export const metadata = { title: "Page not found" };
@@ -13,6 +14,7 @@ export default function NotFound() {
           <Link className="ob-brand" href="/home">
             {platform.name}
           </Link>
+          <LangToggle />
         </header>
       }
     >

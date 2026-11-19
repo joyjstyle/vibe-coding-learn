@@ -14,9 +14,9 @@ const dates = ["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-19", "2026-11-
 const rec = (lessonId: string, status: LessonProgress["status"], lastSection: number | null = null): [string, LessonProgress] => [lessonId, { lessonId, status, lastSection, tickedSteps: [], tickedCriteria: [], completedAt: null }];
 
 describe("Home: next lesson and lessons behind", () => {
-  it("says nothing is open before the start date", () => {
+  it("offers Day 1 before the start date is set", () => {
     const view = buildProgrammeView("2026-11-18", null, new Map());
-    expect(nextUp(view, new Map())).toEqual({ kind: "not_open" });
+    expect(nextUp(view, new Map())).toMatchObject({ kind: "lesson" });
     expect(lessonsBehind(view)).toBe(0);
   });
   it("starts with Lesson 1.1 on the first day, with nobody behind", () => {

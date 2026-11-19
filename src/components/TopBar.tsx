@@ -6,6 +6,7 @@ import { mainNav, navCurrent } from "@/lib/nav";
 import { AccountMenu } from "./AccountMenu";
 import { Avatar } from "./Avatar";
 import { HelpButton } from "./help/HelpButton";
+import { LangToggle } from "./LangToggle";
 
 /**
  * Top bar for every page except lessons. Left: the platform name in plain type (no logo
@@ -46,6 +47,7 @@ export function TopBar({ brand, initials, name }: { brand: string; initials: str
         <span className="gl-topbar__menu">
           <AccountMenu initials={initials} name={name} />
         </span>
+        <LangToggle />
       </div>
     </header>
   );

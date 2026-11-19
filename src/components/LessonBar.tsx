@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { HomeIcon } from "./icons";
 import { HelpButton } from "./help/HelpButton";
+import { LangToggle } from "./LangToggle";
 import type { LessonRef } from "@/lib/content/curriculum";
 import { IconLink } from "./IconLink";
 import { OutlineButton, SectionProgress } from "./lesson/LessonBarControls";
@@ -39,6 +40,7 @@ export function LessonBar({ lesson }: { lesson: LessonRef }) {
         <OutlineButton />
         <HelpButton />
         <IconLink href="/home" label="Home" icon={<HomeIcon />} />
+        <LangToggle />
       </div>
     </header>
   );
