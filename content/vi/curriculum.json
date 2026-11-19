@@ -1,5 +1,5 @@
 {
-  "platform_name": "Genie Lab",
+  "platform_name": "VibeCode Academy",
   "platform_description": "Nền tảng thực tập Vibe Coding của Clinic Genie",
   "language": "vi",
   "note": "Vietnamese translation of content/curriculum.json. Same ids, order, minutes and file names; only titles differ. A lesson file missing here falls back to the English one.",

@@ -27,11 +27,11 @@ const en = {
   "pages.completeOf": (done: number, total: number) => `${done} of ${total} complete`,
 
   // Not found
-  "pages.notFound.lead": "This address does not match a page in Genie Lab. Check the link, or go to Home.",
+  "pages.notFound.lead": "This address does not match a page in VibeCode Academy. Check the link, or go to Home.",
 
   // Sign in
   "pages.signIn.metaTitle": "Sign in",
-  "pages.signIn.title": "Sign in to Genie Lab",
+  "pages.signIn.title": "Sign in to VibeCode Academy",
   "pages.signIn.sectionLabel": "Sign in",
   "pages.signIn.forgotten": "Your supervisor sets up your account. If you've forgotten your password, ask them to reset it.",
   "pages.signIn.notSetUpLabel": "Sign-in not set up",
@@ -44,7 +44,7 @@ const en = {
   "pages.signIn.errorEmpty": "Enter your email and password.",
   "pages.signIn.errorRateLimit": "Too many attempts. Wait a minute, then try again.",
   "pages.signIn.errorMismatch": "That email and password don't match an account. Check them, or ask your supervisor to reset your password.",
-  "pages.signIn.errorNetwork": "We couldn't reach Genie Lab. Check your connection, then try again.",
+  "pages.signIn.errorNetwork": "We couldn't reach VibeCode Academy. Check your connection, then try again.",
 
   // Settings
   "pages.settings.title": "Settings",
@@ -65,7 +65,7 @@ const en = {
   "pages.settings.size.largerHint": "About a quarter larger",
   "pages.settings.motion": "Motion",
   "pages.settings.reduceMotion": "Reduce motion",
-  "pages.settings.motionHelp": "Turns off animations, such as drawers sliding in. If your device is set to reduce motion, Genie Lab already follows it.",
+  "pages.settings.motionHelp": "Turns off animations, such as drawers sliding in. If your device is set to reduce motion, VibeCode Academy already follows it.",
   "pages.settings.saving": "Saving…",
   "pages.settings.save": "Save settings",
   "pages.settings.account": "Account",
@@ -240,13 +240,13 @@ const en = {
   "pages.welcome.stepOf": (n: number, total: number) => `Step ${n} of ${total}`,
   "pages.welcome.buildIntro": (days: number, lessons: number) => `Over ${days} days, one unit a day, you will build a website for Saffron Wellness Clinic, a fictional practice client. Each day has ${lessons} lessons.`,
   "pages.welcome.dayItem": (n: number, title: string) => `Day ${n}: ${title}`,
-  "pages.welcome.lessonIntro": "Every lesson follows the same four steps. Keep Genie Lab in one half of your screen and VS Code in the other.",
+  "pages.welcome.lessonIntro": "Every lesson follows the same four steps. Keep VibeCode Academy in one half of your screen and VS Code in the other.",
   "pages.welcome.lessonStep1": "Read the lesson here, one section at a time.",
   "pages.welcome.lessonStep2": "Do the work in VS Code, with Claude Code in its terminal. Prompts and commands have a Copy button.",
   "pages.welcome.lessonStep3": "Hand in evidence with Submit evidence.",
   "pages.welcome.lessonStep4": "Check your understanding with the knowledge check.",
   "pages.welcome.lessonSaved": "Your place and your ticked steps are saved as you go, so Continue on Home always takes you back.",
-  "pages.welcome.review1": (n: number) => `${n} lessons are review points. At each one you send your supervisor a read-only link to your evidence. They accept it or ask for changes outside Genie Lab, and you record their decision in My work.`,
+  "pages.welcome.review1": (n: number) => `${n} lessons are review points. At each one you send your supervisor a read-only link to your evidence. They accept it or ask for changes outside VibeCode Academy, and you record their decision in My work.`,
   "pages.welcome.review2": "Recording a decision never changes whether a lesson is complete. If changes are requested, you fix the work and resubmit; every earlier version is kept.",
   "pages.welcome.review3": "New days open on the calendar, so you carry on while a review is pending.",
   "pages.welcome.materials": "Day 1's lessons ask for these materials:",
@@ -278,11 +278,11 @@ const vi: typeof en = {
   "pages.completeOf": (done, total) => `Hoàn thành ${done} / ${total}`,
 
   // Not found
-  "pages.notFound.lead": "Địa chỉ này không khớp với trang nào trong Genie Lab. Bạn hãy kiểm tra lại đường link, hoặc về Trang chủ.",
+  "pages.notFound.lead": "Địa chỉ này không khớp với trang nào trong VibeCode Academy. Bạn hãy kiểm tra lại đường link, hoặc về Trang chủ.",
 
   // Sign in
   "pages.signIn.metaTitle": "Đăng nhập",
-  "pages.signIn.title": "Đăng nhập vào Genie Lab",
+  "pages.signIn.title": "Đăng nhập vào VibeCode Academy",
   "pages.signIn.sectionLabel": "Đăng nhập",
   "pages.signIn.forgotten": "Người hướng dẫn sẽ tạo tài khoản cho bạn. Nếu bạn quên mật khẩu, hãy nhờ họ đặt lại.",
   "pages.signIn.notSetUpLabel": "Chưa thiết lập đăng nhập",
@@ -295,7 +295,7 @@ const vi: typeof en = {
   "pages.signIn.errorEmpty": "Hãy nhập email và mật khẩu của bạn.",
   "pages.signIn.errorRateLimit": "Bạn đã thử quá nhiều lần. Hãy đợi một phút rồi thử lại.",
   "pages.signIn.errorMismatch": "Email và mật khẩu này không khớp với tài khoản nào. Bạn hãy kiểm tra lại, hoặc nhờ Người hướng dẫn đặt lại mật khẩu.",
-  "pages.signIn.errorNetwork": "Không kết nối được tới Genie Lab. Bạn hãy kiểm tra kết nối mạng rồi thử lại.",
+  "pages.signIn.errorNetwork": "Không kết nối được tới VibeCode Academy. Bạn hãy kiểm tra kết nối mạng rồi thử lại.",
 
   // Settings
   "pages.settings.title": "Cài đặt",
@@ -316,7 +316,7 @@ const vi: typeof en = {
   "pages.settings.size.largerHint": "Lớn hơn khoảng một phần tư",
   "pages.settings.motion": "Chuyển động",
   "pages.settings.reduceMotion": "Giảm chuyển động",
-  "pages.settings.motionHelp": "Tắt các hiệu ứng động, ví dụ ngăn kéo trượt vào. Nếu thiết bị của bạn đã bật giảm chuyển động, Genie Lab sẽ tự làm theo.",
+  "pages.settings.motionHelp": "Tắt các hiệu ứng động, ví dụ ngăn kéo trượt vào. Nếu thiết bị của bạn đã bật giảm chuyển động, VibeCode Academy sẽ tự làm theo.",
   "pages.settings.saving": "Đang lưu…",
   "pages.settings.save": "Lưu cài đặt",
   "pages.settings.account": "Tài khoản",
@@ -491,13 +491,13 @@ const vi: typeof en = {
   "pages.welcome.stepOf": (n, total) => `Bước ${n} / ${total}`,
   "pages.welcome.buildIntro": (days, lessons) => `Trong ${days} ngày, mỗi ngày một chủ đề, bạn sẽ xây dựng một website cho Saffron Wellness Clinic, một khách hàng giả định để thực hành. Mỗi ngày có ${lessons} bài học.`,
   "pages.welcome.dayItem": (n, title) => `Ngày ${n}: ${title}`,
-  "pages.welcome.lessonIntro": "Mọi bài học đều theo bốn bước giống nhau. Hãy để Genie Lab ở một nửa màn hình và VS Code ở nửa còn lại.",
+  "pages.welcome.lessonIntro": "Mọi bài học đều theo bốn bước giống nhau. Hãy để VibeCode Academy ở một nửa màn hình và VS Code ở nửa còn lại.",
   "pages.welcome.lessonStep1": "Đọc bài học tại đây, từng phần một.",
   "pages.welcome.lessonStep2": "Làm bài trong VS Code, với Claude Code trong terminal. Prompt và lệnh đều có nút Sao chép.",
   "pages.welcome.lessonStep3": "Nộp bằng chứng bằng nút Nộp bằng chứng.",
   "pages.welcome.lessonStep4": "Kiểm tra mức độ hiểu bài với phần Kiểm tra kiến thức.",
   "pages.welcome.lessonSaved": "Vị trí và các bước bạn đã đánh dấu được lưu khi bạn làm, nên nút Tiếp tục trên Trang chủ luôn đưa bạn quay lại đúng chỗ.",
-  "pages.welcome.review1": (n) => `${n} bài học là điểm duyệt. Ở mỗi điểm, bạn gửi Người hướng dẫn một link chỉ đọc tới bằng chứng của bạn. Họ chấp nhận hoặc yêu cầu chỉnh sửa bên ngoài Genie Lab, và bạn ghi lại quyết định của họ trong Bài làm.`,
+  "pages.welcome.review1": (n) => `${n} bài học là điểm duyệt. Ở mỗi điểm, bạn gửi Người hướng dẫn một link chỉ đọc tới bằng chứng của bạn. Họ chấp nhận hoặc yêu cầu chỉnh sửa bên ngoài VibeCode Academy, và bạn ghi lại quyết định của họ trong Bài làm.`,
   "pages.welcome.review2": "Việc ghi lại quyết định không bao giờ thay đổi trạng thái hoàn thành của bài học. Nếu cần chỉnh sửa, bạn sửa bài và nộp lại; mọi phiên bản trước đều được giữ.",
   "pages.welcome.review3": "Các ngày mới mở theo lịch, nên bạn cứ tiếp tục trong khi chờ duyệt.",
   "pages.welcome.materials": "Các bài học của Ngày 1 cần những tài liệu sau:",

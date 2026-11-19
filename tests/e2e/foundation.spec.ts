@@ -26,7 +26,7 @@ test.describe("every route", () => {
     test(`${route} renders with one h1, a title and no axe violations`, async ({ page }) => {
       const res = await page.goto(route);
       expect(res?.status()).toBe(200);
-      await expect(page).toHaveTitle(/ · Genie Lab$/);
+      await expect(page).toHaveTitle(/ · VibeCode Academy$/);
       await expect(page.locator("h1")).toHaveCount(1);
       await expect(page.locator("main#main")).toHaveCount(1);
       expect(await axe(page)).toEqual([]);
@@ -66,7 +66,7 @@ test.describe("skip link", () => {
 test.describe("top bar", () => {
   test("shows the platform name as plain text linking to Home", async ({ page }) => {
     await page.goto("/syllabus");
-    const brand = page.getByRole("banner").getByRole("link", { name: "Genie Lab", exact: true });
+    const brand = page.getByRole("banner").getByRole("link", { name: "VibeCode Academy", exact: true });
     await expect(brand).toHaveAttribute("href", "/home");
     await expect(brand.locator("img, svg")).toHaveCount(0);
   });

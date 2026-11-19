@@ -3,7 +3,7 @@ import { days, getDayFromParam, getLessonBySlug, lessonIdToSlug, lessons, platfo
 
 describe("curriculum", () => {
   it("names the platform from the content package", () => {
-    expect(platform.name).toBe("Genie Lab");
+    expect(platform.name).toBe("VibeCode Academy");
     expect(platform.description).toBe("Clinic Genie Vibe Coding Intern Platform");
   });
   it("has the days and lessons the package lists, in order", () => {

@@ -45,7 +45,7 @@ test("signed-out visitors are sent to sign in, and come back afterwards", async 
   await expect(page).toHaveURL(/\/sign-in$/);
   await page.goto("/day/2");
   await expect(page).toHaveURL(/\/sign-in\?next=%2Fday%2F2$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sign in to Genie Lab");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sign in to VibeCode Academy");
   await expect(page.getByRole("navigation")).toHaveCount(0);
   expect(await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze().then((r) => r.violations)).toEqual([]);
   // Share links stay public: a missing one is a plain 404, not a sign-in page.

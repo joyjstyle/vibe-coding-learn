@@ -10,7 +10,7 @@ import type { Pool } from "pg";
 
 export function createAuth(db: Pool) {
   return betterAuth({
-    appName: "Genie Lab",
+    appName: "VibeCode Academy",
     database: db,
     secret: process.env.BETTER_AUTH_SECRET,
     // Production sets BETTER_AUTH_URL. Vercel previews each have their own address, so
