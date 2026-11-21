@@ -33,7 +33,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
       }
     >
       <div className="gl-narrow">
-        <PageHeader eyebrow={platform.description} title={t["pages.signIn.title"]} />
+        <PageHeader eyebrow={platform.name} title={t["pages.signIn.title"]} />
         {isDatabaseMode() ? (
           <section className="ob-card ob-card--outlined gl-signin-card" aria-label={t["pages.signIn.sectionLabel"]}>
             <SignInForm next={next} />
