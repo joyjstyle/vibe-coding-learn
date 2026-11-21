@@ -45,11 +45,11 @@ export class BetterAuthProvider implements AuthProvider {
 }
 
 /**
- * Sign-in is off unless GENIE_LAB_LOGIN=1. With sign-in off, everyone uses one shared
- * account, so all data belongs to a single user.
+ * Sign-in is on unless GENIE_LAB_LOGIN=0. Each account's data is kept separately. With
+ * sign-in off, everyone uses one shared account, so all data belongs to a single user.
  */
 export function isLoginEnabled(): boolean {
-  return process.env.GENIE_LAB_LOGIN === "1";
+  return process.env.GENIE_LAB_LOGIN !== "0";
 }
 
 const SOLO_ID = "solo-intern";

@@ -12,7 +12,7 @@ export default function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname + req.nextUrl.search;
   const headers = new Headers(req.headers);
   headers.set("x-genie-path", path);
-  if (process.env.DATABASE_URL && process.env.GENIE_LAB_LOGIN === "1" && !PUBLIC.some((p) => p.test(req.nextUrl.pathname)) && !getSessionCookie(req)) {
+  if (process.env.DATABASE_URL && process.env.GENIE_LAB_LOGIN !== "0" && !PUBLIC.some((p) => p.test(req.nextUrl.pathname)) && !getSessionCookie(req)) {
     const url = req.nextUrl.clone();
     url.pathname = "/sign-in";
     url.search = req.nextUrl.pathname === "/" ? "" : `?next=${encodeURIComponent(path)}`;
