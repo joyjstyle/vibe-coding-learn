@@ -5,6 +5,9 @@
  *
  *   DATABASE_URL=… npm run create-intern -- --email ada@example.com --name "Ada Lovelace"
  *   DATABASE_URL=… npm run create-intern -- --email ada@example.com --reset-password
+ *
+ * Add --supervisor to create a supervisor account instead, or to make an existing account
+ * a supervisor (no password needed then). Supervisors see every student's progress and work.
  */
 import { randomBytes } from "node:crypto";
 import { parseArgs } from "node:util";
@@ -18,11 +21,12 @@ const { values } = parseArgs({
     "reset-password": { type: "boolean", default: false },
     "password-stdin": { type: "boolean", default: false },
     generate: { type: "boolean", default: false },
+    supervisor: { type: "boolean", default: false },
   },
 });
 
 function usage(msg: string): never {
-  console.error(`${msg}\nUsage: npm run create-intern -- --email <email> --name "<name>" [--generate | --password-stdin]\n       npm run create-intern -- --email <email> --reset-password [--generate | --password-stdin]`);
+  console.error(`${msg}\nUsage: npm run create-intern -- --email <email> --name "<name>" [--supervisor] [--generate | --password-stdin]\n       npm run create-intern -- --email <email> --supervisor   (makes an existing account a supervisor)\n       npm run create-intern -- --email <email> --reset-password [--generate | --password-stdin]`);
   process.exit(1);
 }
 
@@ -60,6 +64,19 @@ async function main() {
   try {
     const ctx = await auth.$context;
     const existing = await ctx.internalAdapter.findUserByEmail(email, { includeAccounts: true });
+    const makeSupervisor = async (userId: string) => {
+      try {
+        await pool.query("insert into genie_supervisors (user_id) values ($1) on conflict do nothing", [userId]);
+      } catch (e) {
+        if ((e as { code?: string }).code === "42P01") usage("The supervisors table does not exist yet. Run: npm run db:migrate");
+        throw e;
+      }
+    };
+    if (values.supervisor && existing && !values["reset-password"]) {
+      await makeSupervisor(existing.user.id);
+      console.log(`${email} is now a supervisor.`);
+      return;
+    }
     const { password, generated } = await readPassword();
     if (password.length < 10 || password.length > 128) usage("The password must be 10 to 128 characters.");
     const hash = await ctx.password.hash(password);
@@ -71,11 +88,12 @@ async function main() {
       console.log(`Password reset for ${email}. They have been signed out everywhere.`);
     } else {
       const name = values.name?.trim();
-      if (!name) usage("Give the student's --name.");
+      if (!name) usage("Give the person's --name.");
       if (existing) usage(`An account for ${email} already exists. Use --reset-password to change its password.`);
       const user = await ctx.internalAdapter.createUser({ email, name, emailVerified: true }, { method: "admin" });
       await ctx.internalAdapter.linkAccount({ userId: user.id, providerId: "credential", accountId: user.id, password: hash });
-      console.log(`Created an account for ${name} <${email}>.`);
+      if (values.supervisor) await makeSupervisor(user.id);
+      console.log(`Created ${values.supervisor ? "a supervisor" : "a student"} account for ${name} <${email}>.`);
     }
     if (generated) console.log(`Temporary password (shown once, send it privately): ${password}`);
   } finally {

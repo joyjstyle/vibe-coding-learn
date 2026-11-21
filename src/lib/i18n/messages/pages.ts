@@ -255,6 +255,22 @@ const en = {
   "pages.welcome.skip": "Skip tour",
   "pages.welcome.day1Unknown": "Day 1 opens once your cohort's start date is confirmed. You can reopen this tour from Help at any time.",
   "pages.welcome.reopen": "You can reopen this tour from Help at any time.",
+
+  "pages.supervisor.title": "Students",
+  "pages.supervisor.lead": "Every student's lesson progress and submitted work. You can look, but nothing here can be changed.",
+  "pages.supervisor.none": "No student accounts yet. Create one with npm run create-intern.",
+  "pages.supervisor.listLabel": "Students",
+  "pages.supervisor.lessonsComplete": (done: number, total: number) => `${done} of ${total} lessons complete`,
+  "pages.supervisor.awaiting": (n: number) => (n === 1 ? "1 submission awaiting review" : `${n} submissions awaiting review`),
+  "pages.supervisor.lastActive": (when: string) => `Last active ${when}`,
+  "pages.supervisor.notStarted": "Not started yet",
+  "pages.supervisor.view": "View progress",
+  "pages.supervisor.viewLabel": (name: string) => `View progress for ${name}`,
+  "pages.supervisor.back": "All students",
+  "pages.supervisor.studentLead": "Lesson progress and submitted work, day by day. Read-only.",
+  "pages.supervisor.day": (n: number, title: string) => `Day ${n}: ${title}`,
+  "pages.supervisor.work": (versions: number) => (versions === 1 ? "Submitted work" : `Submitted work (${versions} versions)`),
+  "pages.supervisor.signOut": "Sign out",
 };
 
 const vi: typeof en = {
@@ -506,6 +522,22 @@ const vi: typeof en = {
   "pages.welcome.skip": "Bỏ qua giới thiệu",
   "pages.welcome.day1Unknown": "Ngày 1 sẽ mở khi ngày bắt đầu của khóa được xác nhận. Bạn có thể mở lại phần giới thiệu này từ Trợ giúp bất cứ lúc nào.",
   "pages.welcome.reopen": "Bạn có thể mở lại phần giới thiệu này từ Trợ giúp bất cứ lúc nào.",
+
+  "pages.supervisor.title": "Học viên",
+  "pages.supervisor.lead": "Tiến độ bài học và bài nộp của mọi học viên. Bạn chỉ có thể xem, không thể thay đổi gì ở đây.",
+  "pages.supervisor.none": "Chưa có tài khoản học viên nào. Tạo tài khoản bằng npm run create-intern.",
+  "pages.supervisor.listLabel": "Học viên",
+  "pages.supervisor.lessonsComplete": (done: number, total: number) => `Đã hoàn thành ${done}/${total} bài học`,
+  "pages.supervisor.awaiting": (n: number) => `${n} bài nộp đang chờ nhận xét`,
+  "pages.supervisor.lastActive": (when: string) => `Hoạt động gần nhất: ${when}`,
+  "pages.supervisor.notStarted": "Chưa bắt đầu",
+  "pages.supervisor.view": "Xem tiến độ",
+  "pages.supervisor.viewLabel": (name: string) => `Xem tiến độ của ${name}`,
+  "pages.supervisor.back": "Tất cả học viên",
+  "pages.supervisor.studentLead": "Tiến độ bài học và bài nộp theo từng ngày. Chỉ xem.",
+  "pages.supervisor.day": (n: number, title: string) => `Ngày ${n}: ${title}`,
+  "pages.supervisor.work": (versions: number) => (versions === 1 ? "Bài đã nộp" : `Bài đã nộp (${versions} phiên bản)`),
+  "pages.supervisor.signOut": "Đăng xuất",
 };
 
 export const pages = { en, vi };
